@@ -3,7 +3,8 @@ import { SITE_URL, title } from "@/lib/site";
 import { INSTALL, REPO_URL, hero, pitch } from "@/content/copy";
 
 // /llms.txt (llmstxt.org): a plain-text map of the site for AI assistants, built from the same
-// catalog as the pages, so it lists exactly what ships. Prerendered at build like everything else.
+// catalog as the pages, so it lists exactly what ships. Every entry is a Markdown link, as the
+// format expects of H2 sections. Prerendered at build like everything else.
 export const dynamic = "force-static";
 
 export async function GET() {
@@ -25,15 +26,18 @@ export async function GET() {
     "",
     "## Coaches",
     "",
-    ...c.coaches.flatMap((p) => [
-      `- [${title(p.slug)}](${SITE_URL}/coaches/${p.slug}): ${pitch[p.slug] ?? p.description}`,
-      ...p.skills.map((s) => `  - \`${s.invocation}\`: ${s.description}`),
-      ...p.agents.map((a) => `  - agent \`${a.invocation}\`: ${a.description}`),
-    ]),
+    ...c.coaches.flatMap((p) => {
+      const url = `${SITE_URL}/coaches/${p.slug}`;
+      return [
+        `- [${title(p.slug)}](${url}): ${pitch[p.slug] ?? p.description}`,
+        ...p.skills.map((s) => `  - [${s.invocation}](${url}): ${s.description}`),
+        ...p.agents.map((a) => `  - [agent ${a.invocation}](${url}): ${a.description}`),
+      ];
+    }),
     "",
     "## Commands",
     "",
-    ...c.commands.map((s) => `- \`${s.invocation}\`: ${s.description}`),
+    ...c.commands.map((s) => `- [${s.invocation}](${SITE_URL}/#commands): ${s.description}`),
     "",
   ];
   return new Response(lines.join("\n"), { headers: { "Content-Type": "text/plain; charset=utf-8" } });

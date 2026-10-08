@@ -219,7 +219,7 @@ export default async function Home() {
         </div>
       </section>
 
-      <section className="section">
+      <section className="section" id="commands">
         <div className="wrap">
           <Head
             eyebrow="Commands"

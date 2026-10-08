@@ -92,7 +92,7 @@ export const harnesses = {
 export const faq = [
   {
     q: "Where does my data live?",
-    a: "In `~/.ai-coach/` (`%USERPROFILE%\.ai-coach` on Windows), whichever harness opened the session. There is no AI Coach server and no account. Session-end distillation makes one call through `claude` on your PATH when it is there, and quietly skips when it is not.",
+    a: "In `~/.ai-coach/` (`%USERPROFILE%\\.ai-coach` on Windows), whichever harness opened the session. There is no AI Coach server and no account. Session-end distillation makes one call through `claude` on your PATH when it is there, and quietly skips when it is not.",
   },
   {
     q: "Is the secrets guard on?",
