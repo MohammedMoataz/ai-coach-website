@@ -34,7 +34,7 @@ export type Catalog = {
 
 type Marketplace = {
   version: string;
-  plugins: { name: string; description: string; tags?: string[] }[];
+  plugins: { name: string; source?: string; description: string; tags?: string[] }[];
 };
 
 // Claude Code frontmatter is one `key: value` per line, not strict YAML: an unquoted ": " inside
@@ -89,39 +89,48 @@ export function buildCatalog(commit: string, paths: string[], files: Record<stri
     if (!files[`plugins/${plugin}/skills/${skill}/SKILL.md`]) throw new Error(`plugins/${plugin}/skills/${skill}: no SKILL.md`);
   }
 
-  const plugins: Plugin[] = market.plugins.map((p) => {
+  // Group every fetched file by the plugin directory it lives in.
+  const byDir = new Map<string, { skills: string[]; agents: string[]; commands: string[] }>();
+  for (const path of Object.keys(files).sort()) {
+    const m = /^plugins\/([^/]+)\/(skills\/[^/]+\/SKILL|agents\/[^/]+|commands\/[^/]+)\.md$/.exec(path);
+    if (!m) continue;
+    const entry = byDir.get(m[1]) ?? { skills: [], agents: [], commands: [] };
+    entry[m[2].split("/")[0] as "skills" | "agents" | "commands"].push(path);
+    byDir.set(m[1], entry);
+  }
+  // plugins/<dir>/skills/<name>/SKILL.md, plugins/<dir>/agents/<name>.md, plugins/<dir>/commands/<name>.md
+  const nameOf = (path: string) => path.split("/")[3].replace(/\.md$/, "");
+
+  const plugins = market.plugins.map((p) => {
     if (!str(p.description)) throw new Error(`marketplace.json: ${p.name} has no description`);
-    const skills: Skill[] = [];
-    const agents: Agent[] = [];
-    for (const path of Object.keys(files).sort()) {
-      let m = new RegExp(`^plugins/${p.name}/skills/([^/]+)/SKILL\\.md$`).exec(path);
-      if (m) skills.push(toSkill(p.name, m[1], path, files[path]));
-      m = new RegExp(`^plugins/${p.name}/agents/([^/]+)\\.md$`).exec(path);
-      if (m) {
-        const fm = frontmatter(path, files[path]);
-        const name = str(fm.name) ?? m[1];
-        agents.push({
-          name,
-          invocation: `${p.name}:${name}`,
-          description: str(fm.description)!,
-          tools: (str(fm.tools) ?? "").split(",").map((t) => t.trim()).filter(Boolean),
-        });
-      }
-    }
-    return { slug: p.name, description: p.description.trim(), tags: p.tags ?? [], skills, agents };
+    // A plugin's directory is its marketplace `source`, which need not match its name. Only the
+    // in-repo `./plugins/<dir>` form is supported; anything else would silently read as empty.
+    const dir = /^\.\/plugins\/([^/]+)\/?$/.exec(p.source ?? "")?.[1];
+    if (!dir) throw new Error(`marketplace.json: unsupported source for ${p.name}: ${p.source}`);
+    const found = byDir.get(dir) ?? { skills: [], agents: [], commands: [] };
+    const skills = found.skills.map((path) => toSkill(p.name, nameOf(path), path, files[path]));
+    const agents: Agent[] = found.agents.map((path) => {
+      const fm = frontmatter(path, files[path]);
+      const name = str(fm.name) ?? nameOf(path);
+      return {
+        name,
+        invocation: `${p.name}:${name}`,
+        description: str(fm.description)!,
+        tools: (str(fm.tools) ?? "").split(",").map((t) => t.trim()).filter(Boolean),
+      };
+    });
+    const commands = found.commands.map((path) => toSkill(p.name, nameOf(path), path, files[path]));
+    const plugin: Plugin = { slug: p.name, description: p.description.trim(), tags: p.tags ?? [], skills, agents };
+    return { plugin, commands };
   });
 
-  const engine = plugins.find((p) => p.slug === ENGINE);
+  const engine = plugins.find((p) => p.plugin.slug === ENGINE)?.plugin;
   if (!engine) throw new Error(`marketplace.json: no ${ENGINE}`);
-  const coaches = plugins.filter((p) => p.slug !== ENGINE && p.slug !== BUNDLE);
-  const commands = Object.keys(files)
-    .sort()
-    .flatMap((path) => {
-      const m = new RegExp(`^plugins/${BUNDLE}/commands/([^/]+)\\.md$`).exec(path);
-      return m ? [toSkill(BUNDLE, m[1], path, files[path])] : [];
-    });
+  const coaches = plugins.map((p) => p.plugin).filter((p) => p.slug !== ENGINE && p.slug !== BUNDLE);
+  const commands = plugins.find((p) => p.plugin.slug === BUNDLE)?.commands ?? [];
 
-  const skills = plugins.flatMap((p) => p.skills);
+  const all = plugins.map((p) => p.plugin);
+  const skills = all.flatMap((p) => p.skills);
   return {
     version: market.version,
     commit,
@@ -132,7 +141,7 @@ export function buildCatalog(commit: string, paths: string[], files: Record<stri
       coaches: coaches.length,
       skills: skills.length,
       modelInvocable: skills.filter((s) => s.modelInvocable).length,
-      agents: plugins.reduce((n, p) => n + p.agents.length, 0),
+      agents: all.reduce((n, p) => n + p.agents.length, 0),
       commands: commands.length,
     },
   };

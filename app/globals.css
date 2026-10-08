@@ -783,3 +783,33 @@ img {
     animation: none;
   }
 }
+
+/* Narrow phones: the mark alone carries the brand (the link keeps its aria-label), so every
+   nav control still fits at 320px. */
+@media (max-width: 400px) {
+  .brand-text {
+    display: none;
+  }
+
+  .nav-inner {
+    gap: 4px;
+  }
+}
+
+.coach-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  font: 500 14px/1 var(--mono);
+  color: var(--ink-soft);
+}
+
+.coach-pick select {
+  font: 14px/1.2 var(--mono);
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+}

@@ -14,13 +14,16 @@ import { ThemeToggle } from "./ThemeToggle";
 export function Nav({ coaches }: { coaches: string[] }) {
   const menu = useRef<Menu>(null);
   const router = useRouter();
-  // Real hrefs for crawlers and middle-click; a plain click stays a client-side navigation.
+  // Real hrefs for crawlers and new-tab clicks; only a plain primary click becomes a client-side
+  // navigation, so Ctrl/Cmd/Shift-click and middle-click keep the browser's behaviour.
   const link = (label: string, url: string, icon?: string): MenuItem => ({
     label,
     url,
     icon,
-    command: (e) => {
-      e.originalEvent.preventDefault();
+    command: ({ originalEvent: e }) => {
+      const m = e as React.MouseEvent;
+      if (m.button > 0 || m.ctrlKey || m.metaKey || m.shiftKey || m.altKey) return;
+      e.preventDefault();
       router.push(url);
     },
   });
@@ -35,7 +38,7 @@ export function Nav({ coaches }: { coaches: string[] }) {
       <div className="wrap nav-inner">
         <Link href="/" className="brand" aria-label="AI Coach home">
           <Image src="/logo.png" alt="" width={28} height={28} priority />
-          AI Coach
+          <span className="brand-text">AI Coach</span>
         </Link>
         <Menu model={items} popup ref={menu} id="coach-menu" />
         <Button

@@ -1,12 +1,16 @@
 "use client";
 
+import { useState } from "react";
 import { Accordion, AccordionTab } from "primereact/accordion";
 import { TabPanel, TabView } from "primereact/tabview";
 import { InstallBlock } from "./InstallBlock";
 
-const MCP = "node /absolute/path/to/ai-coach/adapters/mcp/server.js";
+// $(pwd) expands in bash, zsh and PowerShell alike, so the copied line carries a real absolute
+// path as long as it runs where the repo was cloned.
+const MCP = 'node "$(pwd)/ai-coach/adapters/mcp/server.js"';
 
 export function InstallTabs({ bundle, coaches, repo }: { bundle: string[]; coaches: string[]; repo: string }) {
+  const [coach, setCoach] = useState(coaches[0]);
   return (
     <>
       <TabView scrollable>
@@ -18,13 +22,19 @@ export function InstallTabs({ bundle, coaches, repo }: { bundle: string[]; coach
         </TabPanel>
         <TabPanel header="One coach">
           <p className="prose">
-            Each coach installs alone and pulls the engine (<code>ai-coach-core</code>) with it. Add the marketplace
-            first, then any of these.
+            Each coach installs alone and pulls the engine (<code>ai-coach-core</code>) with it.
           </p>
-          <InstallBlock
-            lines={[bundle[0], ...coaches.map((c) => `claude plugin install ${c}@ai-coach`)]}
-            label="pick the lines you want"
-          />
+          <label className="coach-pick">
+            Coach
+            <select value={coach} onChange={(e) => setCoach(e.target.value)}>
+              {coaches.map((c) => (
+                <option key={c} value={c}>
+                  {c}
+                </option>
+              ))}
+            </select>
+          </label>
+          <InstallBlock lines={[bundle[0], `claude plugin install ${coach}@ai-coach`]} label={coach} />
         </TabPanel>
         <TabPanel header="Other harnesses">
           <p className="prose">
@@ -36,7 +46,7 @@ export function InstallTabs({ bundle, coaches, repo }: { bundle: string[]; coach
             label="once, any harness"
           />
           <p className="prose" style={{ marginTop: 20 }}>
-            Then point your harness at the MCP server, for example Codex CLI:
+            Then, from the same directory, point your harness at the MCP server. For example, Codex CLI:
           </p>
           <InstallBlock lines={[`codex mcp add ai-coach -- ${MCP}`]} label="codex" />
           <p className="prose" style={{ marginTop: 20 }}>
