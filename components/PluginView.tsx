@@ -1,13 +1,15 @@
 import Link from "next/link";
-import type { Plugin } from "@/lib/coaches";
+import { getCatalog, type Plugin } from "@/lib/coaches";
 import { title } from "@/lib/site";
 import { pitch } from "@/content/copy";
+import { workflows } from "@/content/workflows";
 import { InstallBlock } from "./InstallBlock";
 import { SkillTabs } from "./SkillTabs";
+import { Workflow } from "./Workflow";
 
 type Neighbour = { href: string; label: string } | null;
 
-export function PluginView({
+export async function PluginView({
   plugin,
   eyebrow,
   prev,
@@ -20,6 +22,13 @@ export function PluginView({
   next: Neighbour;
   children?: React.ReactNode;
 }) {
+  const catalog = await getCatalog();
+  const known = new Set([
+    ...[catalog.engine, ...catalog.coaches].flatMap((p) => p.skills.map((s) => s.invocation)),
+    ...catalog.commands.map((c) => c.invocation),
+  ]);
+  const flow = workflows[plugin.slug];
+
   return (
     <>
       <header className="page-head">
@@ -41,6 +50,8 @@ export function PluginView({
           <InstallBlock lines={[`claude plugin install ${plugin.slug}@ai-coach`]} label="install this one alone" />
         </div>
       </header>
+
+      {flow && <Workflow flow={flow} known={known} />}
 
       {children}
 
