@@ -1,11 +1,16 @@
 import { KINDS, invocationOf, type StepKind, type Workflow as Flow } from "@/content/workflows";
 
 // A coach's workflow as numbered steps joined by arrows, coloured by who acts. Server-rendered
-// and CSS-only (globals.css, .flow). `known` is every invocation in the catalog: a step naming
-// one that does not exist fails the build.
+// and CSS-only (globals.css, .flow). `known` is every invocation in the catalog: any command the
+// flow names (a step's skill, or a /plugin:name in a detail or the next line) must be in it, or
+// the build fails, so nothing on the page outlives a rename.
 export function Workflow({ flow, known }: { flow: Flow; known: Set<string> }) {
-  for (const s of flow.steps) {
-    if (s.skill && !known.has(invocationOf(s.skill))) throw new Error(`workflow step "${s.label}" names unknown ${s.skill}`);
+  const named = [
+    ...flow.steps.flatMap((s) => (s.skill ? [invocationOf(s.skill)] : [])),
+    ...[flow.next ?? "", ...flow.steps.map((s) => s.detail)].flatMap((t) => t.match(/\/[a-z0-9-]+:[a-z0-9-]+/g) ?? []),
+  ];
+  for (const cmd of named) {
+    if (!known.has(cmd)) throw new Error(`workflow "${flow.title}" names unknown ${cmd}`);
   }
   const used = Object.keys(KINDS).filter((k) => flow.steps.some((s) => s.kind === k)) as StepKind[];
 
