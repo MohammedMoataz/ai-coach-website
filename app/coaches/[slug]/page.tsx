@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getCatalog } from "@/lib/coaches";
-import { title } from "@/lib/site";
+import { SITE_URL, pageMeta, title } from "@/lib/site";
 import { pitch } from "@/content/copy";
 import { PluginView } from "@/components/PluginView";
+import { JsonLd, breadcrumbs } from "@/components/JsonLd";
 
 export const dynamicParams = false;
 
@@ -15,7 +16,7 @@ export async function generateMetadata({ params }: PageProps<"/coaches/[slug]">)
   const { slug } = await params;
   const coach = (await getCatalog()).coaches.find((c) => c.slug === slug);
   if (!coach) return {};
-  return { title: title(slug), description: pitch[slug] ?? coach.description };
+  return pageMeta({ title: `${title(slug)} for Claude Code`, description: pitch[slug] ?? coach.description, path: `/coaches/${slug}` });
 }
 
 export default async function CoachPage({ params }: PageProps<"/coaches/[slug]">) {
@@ -26,11 +27,20 @@ export default async function CoachPage({ params }: PageProps<"/coaches/[slug]">
   const at = (j: number) => (coaches[j] ? { href: `/coaches/${coaches[j].slug}`, label: title(coaches[j].slug) } : null);
 
   return (
-    <PluginView
-      plugin={coaches[i]}
-      eyebrow={`Coach ${i + 1} of ${coaches.length}`}
-      prev={i === 0 ? { href: "/engine", label: "The engine" } : at(i - 1)}
-      next={at(i + 1)}
-    />
+    <>
+      <JsonLd
+        data={breadcrumbs(SITE_URL, [
+          ["Home", "/"],
+          ["Coaches", "/#coaches"],
+          [title(slug), `/coaches/${slug}`],
+        ])}
+      />
+      <PluginView
+        plugin={coaches[i]}
+        eyebrow={`Coach ${i + 1} of ${coaches.length}`}
+        prev={i === 0 ? { href: "/engine", label: "The engine" } : at(i - 1)}
+        next={at(i + 1)}
+      />
+    </>
   );
 }

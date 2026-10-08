@@ -670,10 +670,6 @@ img {
   background: transparent;
 }
 
-.p-accordion .p-accordion-header .p-accordion-header-link {
-  font-family: var(--mono);
-}
-
 .p-button {
   font-family: var(--sans);
 }
@@ -812,4 +808,43 @@ img {
   border: 1px solid var(--border-strong);
   border-radius: var(--radius);
   padding: 8px 10px;
+}
+
+.footer .footer-links {
+  display: flex;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  padding-bottom: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* Install FAQ: native <details>, in the HTML for crawlers and usable without JavaScript. */
+.faq {
+  display: grid;
+  gap: 8px;
+}
+
+.faq details {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 0 18px;
+}
+
+.faq summary {
+  cursor: pointer;
+  padding: 16px 0;
+  font: 600 15px/1.4 var(--mono);
+  color: var(--accent);
+}
+
+.faq details[open] summary {
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 14px;
+}
+
+.faq details p {
+  padding-bottom: 18px;
 }

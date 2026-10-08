@@ -42,8 +42,9 @@ Production deploys run through the Vercel CLI in `.github/workflows/deploy.yml`,
 1. `npm i -g vercel`, then `vercel login` and `vercel link` in this directory.
 2. Repo secrets: `VERCEL_TOKEN` (vercel.com/account/tokens), and `VERCEL_ORG_ID` /
    `VERCEL_PROJECT_ID` from `.vercel/project.json`.
-3. Optional: `NEXT_PUBLIC_SITE_URL` in the Vercel project once a custom domain exists (otherwise
-   the production `*.vercel.app` host is used for canonical URLs and the sitemap).
+3. Production address: https://ai-coach-harness.vercel.app (the old `ai-coach-website.vercel.app`
+   308-redirects to it). It is the canonical URL in every page, the sitemap, robots and structured
+   data; override it with `NEXT_PUBLIC_SITE_URL` in the Vercel project if the domain changes.
 
 Until `VERCEL_TOKEN` exists the deploy workflow skips itself instead of failing.
 
@@ -51,6 +52,19 @@ Until `VERCEL_TOKEN` exists the deploy workflow skips itself instead of failing.
 (`ai-coach-updated`) here when `marketplace.json`, a `SKILL.md`, an agent or a command changes on
 its `main`. It needs a fine-grained token with **Contents: write** on this repo only, stored in
 ai-coach as `SITE_DISPATCH_TOKEN`.
+
+## SEO
+
+- Every page sets its canonical URL, Open Graph and Twitter tags through `pageMeta()` in
+  `lib/site.ts`.
+- Structured data (JSON-LD): `SoftwareApplication` + `WebSite` on the home page,
+  `BreadcrumbList` on inner pages, `FAQPage` on `/install` (from the same `faq` list the page
+  renders).
+- Nothing a crawler should read hides behind JavaScript: tab panels render into the HTML, the FAQ
+  is native `<details>`, and the footer links every page.
+- `/sitemap.xml` (dated by the ai-coach commit), `/robots.txt`, and `/llms.txt` for AI assistants.
+- Search Console: set `GOOGLE_SITE_VERIFICATION` in the Vercel project to emit the ownership
+  meta tag, redeploy, verify, then submit `/sitemap.xml`.
 
 ## License
 

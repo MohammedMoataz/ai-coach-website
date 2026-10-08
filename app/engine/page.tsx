@@ -1,11 +1,15 @@
-import type { Metadata } from "next";
 import { getCatalog } from "@/lib/coaches";
-import { title } from "@/lib/site";
+import { SITE_URL, pageMeta, title } from "@/lib/site";
 import { automatic, pitch } from "@/content/copy";
 import { PluginView } from "@/components/PluginView";
 import { Reveal } from "@/components/Reveal";
+import { JsonLd, breadcrumbs } from "@/components/JsonLd";
 
-export const metadata: Metadata = { title: "The engine", description: pitch["ai-coach-core"] };
+export const metadata = pageMeta({
+  title: "The engine: hooks and memory for Claude Code",
+  description: pitch["ai-coach-core"],
+  path: "/engine",
+});
 
 export default async function EnginePage() {
   const { engine, coaches } = await getCatalog();
@@ -16,6 +20,12 @@ export default async function EnginePage() {
       prev={null}
       next={coaches[0] ? { href: `/coaches/${coaches[0].slug}`, label: title(coaches[0].slug) } : null}
     >
+      <JsonLd
+        data={breadcrumbs(SITE_URL, [
+          ["Home", "/"],
+          ["The engine", "/engine"],
+        ])}
+      />
       <section className="section-sm">
         <div className="wrap">
           <h2 className="h2">{automatic.title}</h2>

@@ -61,7 +61,7 @@ export function SkillTabs({ skills, agents }: { skills: Skill[]; agents: Agent[]
       {agents.length === 0 ? (
         <Skills skills={skills} />
       ) : (
-        <TabView>
+        <TabView renderActiveOnly={false}>
           <TabPanel header={`Skills (${skills.length})`}>
             <Skills skills={skills} />
           </TabPanel>

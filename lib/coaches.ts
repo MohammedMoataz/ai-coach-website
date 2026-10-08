@@ -26,6 +26,7 @@ export type Plugin = {
 export type Catalog = {
   version: string;
   commit: string;
+  updated: string; // ISO date of that ai-coach commit
   engine: Plugin;
   coaches: Plugin[];
   commands: Skill[];
@@ -75,7 +76,7 @@ function toSkill(plugin: string, name: string, path: string, text: string): Skil
 }
 
 // Pure: turns the repo's file list + contents into the catalog. `files` maps repo path to text.
-export function buildCatalog(commit: string, paths: string[], files: Record<string, string>): Catalog {
+export function buildCatalog(commit: string, paths: string[], files: Record<string, string>, updated = ""): Catalog {
   const market = JSON.parse(files[".claude-plugin/marketplace.json"] ?? "null") as Marketplace | null;
   if (!market?.version || !Array.isArray(market.plugins)) throw new Error("marketplace.json: bad shape");
 
@@ -134,6 +135,7 @@ export function buildCatalog(commit: string, paths: string[], files: Record<stri
   return {
     version: market.version,
     commit,
+    updated,
     engine,
     coaches,
     commands,
@@ -159,7 +161,9 @@ async function get(url: string, api: boolean): Promise<Response> {
 }
 
 async function load(): Promise<Catalog> {
-  const commit = (await (await get(`https://api.github.com/repos/${REPO}/commits/${REF}`, true)).json()).sha as string;
+  const head = await (await get(`https://api.github.com/repos/${REPO}/commits/${REF}`, true)).json();
+  const commit = head.sha as string;
+  const updated = head.commit.committer.date as string;
   const tree = await (await get(`https://api.github.com/repos/${REPO}/git/trees/${commit}?recursive=1`, true)).json();
   if (tree.truncated) throw new Error("git tree truncated");
   const paths = (tree.tree as { path: string; type: string }[]).filter((e) => e.type === "blob").map((e) => e.path);
@@ -167,7 +171,7 @@ async function load(): Promise<Catalog> {
   const texts = await Promise.all(
     wanted.map(async (p) => (await get(`https://raw.githubusercontent.com/${REPO}/${commit}/${p}`, false)).text()),
   );
-  return buildCatalog(commit, paths, Object.fromEntries(wanted.map((p, i) => [p, texts[i]])));
+  return buildCatalog(commit, paths, Object.fromEntries(wanted.map((p, i) => [p, texts[i]])), updated);
 }
 
 let pending: Promise<Catalog> | undefined;

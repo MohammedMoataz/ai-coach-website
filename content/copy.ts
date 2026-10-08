@@ -86,3 +86,28 @@ export const harnesses = {
   caveat:
     "What stays Claude Code's: context injection. No other harness lets a session-start hook hand text to the model, so elsewhere the memory brief is your first move, not automatic.",
 };
+
+// Install-page FAQ: rendered as <details> and emitted as FAQPage structured data from this one
+// list, so the two cannot disagree. Backticks mark code.
+export const faq = [
+  {
+    q: "Where does my data live?",
+    a: "In `~/.ai-coach/` (`%USERPROFILE%\\.ai-coach` on Windows), whichever harness opened the session. There is no AI Coach server and no account. Session-end distillation makes one call through `claude` on your PATH when it is there, and quietly skips when it is not.",
+  },
+  {
+    q: "Is the secrets guard on?",
+    a: "Not by default. It is the only hook that can stop a tool call, so it ships off. Turn it on with `AICOACH_GUARD=on` or the setting in `/plugin`.",
+  },
+  {
+    q: "How do I uninstall?",
+    a: "Run `claude plugin uninstall ai-coach`. Your memory outlives the plugin by design, so reinstalling picks up where you left off. Delete `~/.ai-coach/` to remove it too.",
+  },
+  {
+    q: "Which Node version does it need?",
+    a: "Node 22.16+ or 24+: the memory needs `node:sqlite` with FTS5 in its bundled SQLite. The 23.x line ships the module without FTS5 and is not supported.",
+  },
+  {
+    q: "Does it work outside Claude Code?",
+    a: "Yes. Cursor, Windsurf, Antigravity, opencode, Codex CLI and anything that speaks MCP get the memory through an MCP server and the workflows as compiled rules. What stays Claude Code's is context injection: elsewhere the memory brief is your first move, not automatic.",
+  },
+];
