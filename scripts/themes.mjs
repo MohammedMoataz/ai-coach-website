@@ -8,7 +8,7 @@
 import { mkdirSync, readFileSync, writeFileSync } from "node:fs";
 
 const USED = new Set(
-  "button menu menuitem submenu tabview accordion tag tooltip ripple ink component link disabled focus highlight hidden connected toggleable icon".split(" "),
+  "button menu menuitem submenu tabview tag tooltip ripple ink component link disabled focus highlight hidden connected toggleable icon".split(" "),
 );
 // A selector survives only if every .p-* class in it belongs to a component we render, so
 // `.p-splitbutton .p-button` goes even though it mentions a button.

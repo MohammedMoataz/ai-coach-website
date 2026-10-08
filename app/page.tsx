@@ -1,10 +1,17 @@
 import Link from "next/link";
 import { getCatalog } from "@/lib/coaches";
-import { title } from "@/lib/site";
+import { SITE_URL, pageMeta, title } from "@/lib/site";
 import { INSTALL, REPO_URL, automatic, evidence, harnesses, hero, pitch, problem } from "@/content/copy";
 import { InstallBlock } from "@/components/InstallBlock";
 import { Reveal } from "@/components/Reveal";
 import { TeamGraph } from "@/components/TeamGraph";
+import { JsonLd } from "@/components/JsonLd";
+
+export const metadata = pageMeta({
+  description:
+    "AI Coach is a free, open-source coaching harness for Claude Code: team memory that survives the session, prompt coaching, injection defense, onboarding docs and verified research. Install with two commands.",
+  path: "/",
+});
 
 function Head({ eyebrow, h, lede }: { eyebrow: string; h: string; lede?: string }) {
   return (
@@ -24,6 +31,31 @@ export default async function Home() {
 
   return (
     <>
+      <JsonLd
+        data={{
+          "@graph": [
+            { "@type": "WebSite", name: "AI Coach", url: SITE_URL },
+            {
+              "@type": "SoftwareApplication",
+              name: "AI Coach",
+              description: hero.lede,
+              url: SITE_URL,
+              applicationCategory: "DeveloperApplication",
+              applicationSubCategory: "Claude Code plugin",
+              operatingSystem: "Windows, macOS, Linux",
+              softwareVersion: c.version,
+              softwareRequirements: "Claude Code; Node.js 22.16+ or 24+",
+              license: "https://opensource.org/licenses/MIT",
+              isAccessibleForFree: true,
+              offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+              installUrl: `${SITE_URL}/install`,
+              sameAs: [REPO_URL],
+              author: { "@type": "Person", name: "Mohammed Moataz", url: "https://github.com/MohammedMoataz" },
+              featureList: c.coaches.map((p) => `${title(p.slug)}: ${pitch[p.slug] ?? p.description}`),
+            },
+          ],
+        }}
+      />
       <section className="hero">
         <div className="wrap hero-grid">
           <div>

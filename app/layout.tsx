@@ -12,17 +12,14 @@ import { SITE_URL } from "@/lib/site";
 const sans = IBM_Plex_Sans({ subsets: ["latin"], weight: ["400", "500", "600", "700"], variable: "--font-plex-sans" });
 const mono = IBM_Plex_Mono({ subsets: ["latin"], weight: ["400", "500", "600"], variable: "--font-plex-mono" });
 
+// Pages set their own canonical URL, Open Graph and Twitter blocks through pageMeta().
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
-  title: { default: "AI Coach — harness your team", template: "%s · AI Coach" },
-  description:
-    "A coach for using Claude Code well: memory that survives the session, knowledge that changes hands, and no claim without the evidence for it.",
-  openGraph: {
-    type: "website",
-    siteName: "AI Coach",
-    images: [{ url: "/cover.jpg", alt: "AI Coach — harness your team" }],
-  },
-  twitter: { card: "summary_large_image" },
+  title: { default: "AI Coach — a coaching harness for Claude Code", template: "%s · AI Coach" },
+  applicationName: "AI Coach",
+  authors: [{ name: "Mohammed Moataz", url: "https://github.com/MohammedMoataz" }],
+  // Search Console ownership check: set GOOGLE_SITE_VERIFICATION in the Vercel project.
+  ...(process.env.GOOGLE_SITE_VERIFICATION && { verification: { google: process.env.GOOGLE_SITE_VERIFICATION } }),
 };
 
 // Runs before first paint: picks the saved or system theme so nothing flashes. Every colour,
@@ -45,7 +42,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <Providers>
           <Nav coaches={catalog.coaches.map((c) => c.slug)} />
           <main id="main">{children}</main>
-          <Footer version={catalog.version} commit={catalog.commit} />
+          <Footer version={catalog.version} commit={catalog.commit} coaches={catalog.coaches.map((c) => c.slug)} />
         </Providers>
       </body>
     </html>
