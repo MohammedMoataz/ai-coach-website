@@ -42,7 +42,7 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
         <Providers>
           <Nav coaches={catalog.coaches.map((c) => c.slug)} />
           <main id="main">{children}</main>
-          <Footer version={catalog.version} commit={catalog.commit} coaches={catalog.coaches.map((c) => c.slug)} />
+          <Footer version={catalog.version} coaches={catalog.coaches.map((c) => c.slug)} />
         </Providers>
       </body>
     </html>
