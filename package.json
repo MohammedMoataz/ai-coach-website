@@ -1,0 +1,32 @@
+{
+  "name": "ai-coach-website",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "themes": "node scripts/themes.mjs",
+    "predev": "npm run themes",
+    "prebuild": "npm run themes",
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "node --test lib/*.test.mjs"
+  },
+  "dependencies": {
+    "next": "16.4.0",
+    "primeicons": "7.0.0",
+    "primereact": "10.9.9",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "eslint": "^9",
+    "eslint-config-next": "16.4.0",
+    "typescript": "^5"
+  }
+}

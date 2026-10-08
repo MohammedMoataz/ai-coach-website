@@ -1,0 +1,815 @@
+/* Brand tokens, taken from the AI Coach landing artifact (docs/brand-extract.md).
+   Navy and electric cyan from the mark; the blue where the two rings overlap is --accent-2.
+   Theme is set on <html data-theme> before first paint (see app/layout.tsx). */
+:root {
+  color-scheme: light;
+  --bg: #f2f7fc;
+  --surface: #ffffff;
+  --surface-2: #e7f0f9;
+  --border: #cbdaea;
+  --border-strong: #8fa9c4;
+  --text: #06182b;
+  --ink-soft: #2c4a68;
+  --muted: #4c6582;
+  --accent: #0a7389;
+  --accent-hover: #14527e;
+  --accent-contrast: #ffffff;
+  --accent-2: #16699e;
+  --navy: #14276b;
+  --warn: #8a4d08;
+  --k-auto: #0b8fa9;
+  --k-chain: #3e63c8;
+  --term-bg: #061524;
+  --term-ink: #c9dcf2;
+  --term-dim: #7f9bb8;
+  --glow: rgba(11, 143, 169, 0.18);
+  --radius: 6px;
+  --wrap: 72rem;
+  --sans: var(--font-plex-sans), -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: var(--font-plex-mono), ui-monospace, Consolas, monospace;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #04101f;
+  --surface: #0a1b2e;
+  --surface-2: #102640;
+  --border: #1d3a5a;
+  --border-strong: #35587e;
+  --text: #dce9f5;
+  --ink-soft: #b2c7dc;
+  --muted: #91a9c2;
+  --accent: #14d6f2;
+  --accent-hover: #7ae8f8;
+  --accent-contrast: #04101f;
+  --accent-2: #2e9bd6;
+  --navy: #8fa6ee;
+  --warn: #e0a253;
+  --k-auto: #14d6f2;
+  --k-chain: #7c97e8;
+  --glow: rgba(20, 214, 242, 0.16);
+}
+
+/* PrimeReact Lara variables, pointed at the brand. `[data-theme]` outranks the theme file's
+   bare :root, whichever stylesheet loads last. */
+:root[data-theme] {
+  --font-family: var(--sans);
+  --primary-color: var(--accent);
+  --primary-color-text: var(--accent-contrast);
+  --text-color: var(--text);
+  --text-color-secondary: var(--muted);
+  --surface-ground: var(--bg);
+  --surface-section: var(--bg);
+  --surface-card: var(--surface);
+  --surface-overlay: var(--surface);
+  --surface-border: var(--border);
+  --surface-hover: var(--surface-2);
+  --highlight-bg: var(--surface-2);
+  --highlight-text-color: var(--accent);
+  --focus-ring: 0 0 0 2px var(--bg), 0 0 0 4px var(--accent);
+  --border-radius: var(--radius);
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+  scroll-padding-top: 72px;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 16px/1.55 var(--sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--mono);
+  letter-spacing: -0.02em;
+  margin: 0;
+}
+
+h3 {
+  font-size: 18px;
+  line-height: 1.3;
+}
+
+p {
+  margin: 0;
+}
+
+code,
+pre {
+  font-family: var(--mono);
+}
+
+code {
+  font-size: 0.92em;
+}
+
+a {
+  color: var(--accent);
+  text-underline-offset: 3px;
+}
+
+a:hover {
+  color: var(--accent-hover);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+.wrap {
+  max-width: var(--wrap);
+  margin: 0 auto;
+  padding: 0 16px;
+}
+
+.skip {
+  position: absolute;
+  left: -9999px;
+}
+
+.skip:focus {
+  left: 16px;
+  top: 12px;
+  z-index: 100;
+  background: var(--surface);
+  color: var(--text);
+  padding: 8px 12px;
+  border-radius: var(--radius);
+}
+
+/* ---------- Nav ---------- */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: color-mix(in srgb, var(--bg) 88%, transparent);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border);
+}
+
+.nav-inner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  height: 60px;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font: 600 15px/1 var(--mono);
+  color: var(--text);
+  text-decoration: none;
+  margin-right: auto;
+  white-space: nowrap;
+}
+
+.brand:hover {
+  color: var(--text);
+}
+
+.nav-link {
+  font: 500 14px/1 var(--sans);
+  color: var(--ink-soft);
+  text-decoration: none;
+  padding: 8px 10px;
+  border-radius: 4px;
+}
+
+.nav-link:hover {
+  color: var(--text);
+  background: var(--surface-2);
+}
+
+.nav .p-button.p-button-text {
+  color: var(--ink-soft);
+}
+
+@media (max-width: 560px) {
+  .nav-hide-sm {
+    display: none;
+  }
+}
+
+/* ---------- Sections ---------- */
+.section {
+  padding: 96px 0;
+  position: relative;
+}
+
+.section-alt {
+  background: var(--surface);
+  border-block: 1px solid var(--border);
+}
+
+.eyebrow {
+  font: 500 12px/1.5 var(--mono);
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--accent);
+  margin: 0 0 12px;
+}
+
+.h2 {
+  font-size: clamp(24px, 3.6vw, 36px);
+  line-height: 1.18;
+  max-width: 26ch;
+}
+
+.lead {
+  font-size: 18px;
+  line-height: 1.6;
+  color: var(--ink-soft);
+  max-width: 62ch;
+  margin-top: 16px;
+}
+
+.muted {
+  color: var(--muted);
+}
+
+.grid {
+  display: grid;
+  gap: 16px;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+  margin-top: 40px;
+}
+
+.card {
+  height: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 22px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.section-alt .card {
+  background: var(--bg);
+}
+
+.card p {
+  color: var(--ink-soft);
+  margin-top: 8px;
+}
+
+.card-icon {
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  background: var(--glow);
+  color: var(--accent);
+  margin-bottom: 14px;
+  font-size: 17px;
+}
+
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 14px;
+}
+
+.chip {
+  display: inline-block;
+  font: 500 12px/1 var(--mono);
+  padding: 5px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--border);
+  background: var(--surface-2);
+  color: var(--ink-soft);
+}
+
+/* ---------- Hero ---------- */
+.hero {
+  padding: 72px 0 96px;
+  overflow: hidden;
+  position: relative;
+}
+
+.hero::before {
+  content: "";
+  position: absolute;
+  inset: -40% -10% auto auto;
+  width: 70vw;
+  height: 70vw;
+  max-width: 900px;
+  max-height: 900px;
+  background: radial-gradient(circle, var(--glow), transparent 65%);
+  pointer-events: none;
+}
+
+.hero-grid {
+  display: grid;
+  gap: 48px;
+  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+  position: relative;
+}
+
+.hero h1 {
+  font-size: clamp(32px, 5.4vw, 56px);
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+  max-width: 16ch;
+}
+
+.hero h1 em {
+  font-style: normal;
+  background: linear-gradient(90deg, var(--accent), var(--k-chain));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero-fine {
+  font: 13px/1.5 var(--mono);
+  color: var(--muted);
+  margin-top: 14px;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.hero-art {
+  will-change: transform; /* own layer: its animation repaints only itself */
+  width: 100%;
+  max-width: 520px;
+  height: auto;
+  justify-self: center;
+  overflow: visible;
+}
+
+/* ---------- Terminal / install ---------- */
+.term {
+  background: var(--term-bg);
+  color: var(--term-ink);
+  border-radius: 10px;
+  border: 1px solid color-mix(in srgb, var(--term-dim) 35%, transparent);
+  margin-top: 28px;
+  max-width: 640px;
+  box-shadow: 0 20px 50px -24px rgba(4, 16, 31, 0.55);
+}
+
+.term-bar {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 12px;
+  border-bottom: 1px solid color-mix(in srgb, var(--term-dim) 25%, transparent);
+}
+
+.term-bar i {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--term-dim) 45%, transparent);
+}
+
+.term-bar span {
+  font: 12px/1 var(--mono);
+  color: var(--term-dim);
+  margin-left: 8px;
+  margin-right: auto;
+}
+
+.term-copy.p-button {
+  color: var(--term-ink);
+  padding: 4px 8px;
+  gap: 6px;
+  font: 12px/1 var(--mono);
+}
+
+.term-copy.p-button:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: #fff;
+}
+
+.term pre {
+  margin: 0;
+  padding: 16px;
+  font: 13.5px/1.75 var(--mono);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+.term .prompt {
+  color: #14d6f2;
+  user-select: none;
+}
+
+.caret {
+  display: inline-block;
+  width: 8px;
+  height: 1.1em;
+  vertical-align: text-bottom;
+  background: var(--term-ink);
+  animation: blink 1s steps(1) infinite;
+}
+
+@keyframes blink {
+  50% {
+    opacity: 0;
+  }
+}
+
+/* ---------- Coach cards ---------- */
+.coach-card {
+  display: flex;
+  flex-direction: column;
+  text-decoration: none;
+  color: inherit;
+}
+
+.coach-card:hover {
+  color: inherit;
+  border-color: var(--accent);
+  box-shadow: 0 12px 32px -18px var(--accent);
+}
+
+.coach-card h3 {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.coach-card .meta {
+  font: 12px/1.4 var(--mono);
+  color: var(--muted);
+  margin-top: auto;
+  padding-top: 16px;
+}
+
+/* ---------- Evidence ---------- */
+.evidence {
+  display: grid;
+  gap: 40px;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr));
+  margin-top: 40px;
+  align-items: start;
+}
+
+.ticks {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 14px;
+}
+
+.ticks li {
+  display: flex;
+  gap: 12px;
+  color: var(--ink-soft);
+}
+
+.ticks .pi {
+  color: var(--accent);
+  margin-top: 4px;
+}
+
+.stat {
+  font: 600 clamp(40px, 6vw, 60px)/1 var(--mono);
+  letter-spacing: -0.04em;
+  color: var(--accent);
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.stats .card {
+  padding: 14px;
+}
+
+.stats strong {
+  display: block;
+  font: 600 28px/1 var(--mono);
+  color: var(--text);
+}
+
+.stats span {
+  font-size: 13px;
+  color: var(--muted);
+}
+
+/* ---------- Harness strip ---------- */
+.harness {
+  border-left: 3px solid var(--k-chain);
+}
+
+.harness.native {
+  border-left-color: var(--accent);
+}
+
+.caveat {
+  margin-top: 20px;
+  padding: 14px 16px;
+  border-radius: var(--radius);
+  background: color-mix(in srgb, var(--warn) 10%, transparent);
+  border: 1px solid color-mix(in srgb, var(--warn) 40%, transparent);
+  color: var(--text);
+  max-width: 70ch;
+}
+
+/* ---------- Commands / skills ---------- */
+.invoke {
+  font: 500 14px/1.4 var(--mono);
+  color: var(--accent);
+  word-break: break-all;
+}
+
+.hint {
+  display: block;
+  font: 12.5px/1.5 var(--mono);
+  color: var(--muted);
+  margin-top: 10px;
+  overflow-wrap: anywhere;
+}
+
+.skill-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.p-tag {
+  font: 500 11px/1 var(--mono);
+  letter-spacing: 0.02em;
+}
+
+.tag-model {
+  background: var(--glow);
+  color: var(--accent);
+}
+
+.tag-user {
+  background: var(--surface-2);
+  color: var(--ink-soft);
+}
+
+/* ---------- CTA + footer ---------- */
+.cta {
+  text-align: center;
+}
+
+.cta .h2,
+.cta .lead,
+.cta .term {
+  margin-inline: auto;
+}
+
+.cta .term {
+  text-align: left;
+}
+
+.footer {
+  border-top: 1px solid var(--border);
+  padding: 32px 0 48px;
+  font-size: 14px;
+  color: var(--muted);
+}
+
+.footer .wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px 24px;
+  justify-content: space-between;
+}
+
+.footer code {
+  color: var(--ink-soft);
+}
+
+/* ---------- Coach page ---------- */
+.page-head {
+  padding: 56px 0 40px;
+}
+
+.page-head h1 {
+  font-size: clamp(30px, 5vw, 46px);
+  line-height: 1.1;
+  letter-spacing: -0.03em;
+}
+
+.crumbs {
+  font: 13px/1 var(--mono);
+  margin-bottom: 20px;
+}
+
+.crumbs a {
+  text-decoration: none;
+}
+
+.pager {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 40px 0 72px;
+}
+
+.section-sm {
+  padding: 48px 0;
+}
+
+.prose {
+  max-width: 70ch;
+  color: var(--ink-soft);
+}
+
+.prose p + p {
+  margin-top: 12px;
+}
+
+/* PrimeReact component touches */
+.p-tabview .p-tabview-nav li .p-tabview-nav-link {
+  font: 500 14px/1 var(--mono);
+}
+
+.p-tabview .p-tabview-panels {
+  background: transparent;
+  padding: 24px 0 0;
+}
+
+.p-tabview .p-tabview-nav {
+  background: transparent;
+}
+
+.p-accordion .p-accordion-header .p-accordion-header-link {
+  font-family: var(--mono);
+}
+
+.p-button {
+  font-family: var(--sans);
+}
+
+@media (max-width: 560px) {
+  .section {
+    padding: 64px 0;
+  }
+
+  .hero {
+    padding: 48px 0 64px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .caret {
+    animation: none;
+  }
+}
+
+/* Install "typing": the text is static; this overlay dims what is not typed yet and steps off
+   it one character (1ch, the mono advance) at a time. Transform only, so nothing re-lays out. */
+.term-line {
+  position: relative;
+  width: max-content;
+  min-width: 100%;
+  overflow: hidden;
+}
+
+.term-line::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 0 2ch;
+  background: var(--term-bg);
+  opacity: 0.62;
+  pointer-events: none;
+}
+
+.go .term-line::after {
+  animation: type calc(var(--n) * 24ms) steps(var(--n)) var(--d) forwards;
+}
+
+@keyframes type {
+  to {
+    transform: translateX(calc(var(--n) * 1ch));
+  }
+}
+
+/* No JavaScript: show what motion would have revealed. */
+@media (scripting: none) {
+  .term-line::after {
+    display: none;
+  }
+}
+
+/* Scroll reveal: CSS view timeline, no JS. Unsupported browsers and reduced motion get it static. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal] {
+      animation: reveal linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 30%;
+    }
+  }
+}
+
+/* A wipe, not a fade: text caught mid-reveal is clipped, never drawn at low contrast. */
+@keyframes reveal {
+  from {
+    clip-path: inset(0 0 100% 0);
+    transform: translateY(24px);
+  }
+}
+
+.nav-inner > * {
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+.nav-inner > .brand {
+  flex-shrink: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .term-line::after {
+    display: none;
+  }
+}
+
+.term-copy .pi {
+  animation: icon-pop 0.18s ease-out;
+}
+
+@keyframes icon-pop {
+  from {
+    transform: scale(0.4) rotate(-45deg);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .term-copy .pi {
+    animation: none;
+  }
+}
+
+/* Narrow phones: the mark alone carries the brand (the link keeps its aria-label), so every
+   nav control still fits at 320px. */
+@media (max-width: 400px) {
+  .brand-text {
+    display: none;
+  }
+
+  .nav-inner {
+    gap: 4px;
+  }
+}
+
+.coach-pick {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 16px;
+  font: 500 14px/1 var(--mono);
+  color: var(--ink-soft);
+}
+
+.coach-pick select {
+  font: 14px/1.2 var(--mono);
+  color: var(--text);
+  background: var(--surface);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius);
+  padding: 8px 10px;
+}
