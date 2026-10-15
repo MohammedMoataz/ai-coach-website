@@ -29,3 +29,4 @@
 .lm-g-store { fill: none; stroke: var(--muted); stroke-width: 1.5; }
 .lm-call { fill: var(--text); }
 .lm .lm-call-n { fill: var(--surface); }
+.lm-group { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 6 4; }

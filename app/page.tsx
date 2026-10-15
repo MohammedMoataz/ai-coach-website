@@ -6,6 +6,9 @@ import { InstallBlock } from "@/components/InstallBlock";
 import { Reveal } from "@/components/Reveal";
 import { TeamGraph } from "@/components/TeamGraph";
 import { JsonLd } from "@/components/JsonLd";
+import { loopmap } from "@/content/loopmap";
+import { renderBriefSvg } from "@/lib/loopmap";
+import "@/lib/loopmap.css";
 
 export const metadata = pageMeta({
   description:
@@ -113,12 +116,29 @@ export default async function Home() {
               <Link href="/engine">
                 Inside the engine <i className="pi pi-arrow-right" aria-hidden style={{ fontSize: 12 }} />
               </Link>
-              {" · "}
-              <Link href="/how-it-works">
-                See every coach in the agent loop <i className="pi pi-arrow-right" aria-hidden style={{ fontSize: 12 }} />
-              </Link>
             </p>
           </Reveal>
+        </div>
+      </section>
+
+      {/* The engine section's continuation: the same loop the full map draws, one chip per coach
+          per step. Plain background on purpose, so it reads as part of "what happens" above. */}
+      <section className="section-sm" id="loop">
+        <div className="wrap">
+          <Head
+            eyebrow="How a turn runs"
+            h="Every coach has a step in the loop."
+            lede={`The engine and all ${c.counts.coaches} coaches, placed where they enter one turn of Claude Code: on their own, typed by you, called by Claude, or run as a subagent.`}
+          />
+          <Reveal>
+            <div className="loop-brief" dangerouslySetInnerHTML={{ __html: renderBriefSvg(loopmap) }} />
+          </Reveal>
+          <p style={{ marginTop: 20 }}>
+            <Link href="/how-it-works">
+              See the full map, with every hook, skill and special case{" "}
+              <i className="pi pi-arrow-right" aria-hidden style={{ fontSize: 12 }} />
+            </Link>
+          </p>
         </div>
       </section>
 

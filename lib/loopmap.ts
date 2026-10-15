@@ -313,6 +313,115 @@ export function renderSvg(map: LoopMap, opts: { describedBy?: string } = {}): st
   return `<svg class="lm" viewBox="0 0 ${width} ${height}" width="${width}" role="img" aria-label="${esc(map.title)}: Claude Code's agent loop, with every AI Coach plugin at the step where it acts"${described}>${defs}${out.join("")}</svg>`;
 }
 
+// ── the brief: the home page's version of the same map ─────────────────────────────────────────
+// Four rows (how a thing enters) by seven loop steps, one chip per coach per cell: the coach's
+// short name, then the names of what it brings to that step. Drawn at 1:1 for the page's
+// own width, no pan or zoom. The permission column holds nothing, and turn end, compaction and
+// session end share one column; what lives across sessions belongs to the full map.
+const BRIEF_COLS: { title: string; cols: Col[] }[] = [
+  { title: "Session start", cols: ["start"] },
+  { title: "Your prompt", cols: ["prompt"] },
+  { title: "Model turn", cols: ["model"] },
+  { title: "Pre-tool", cols: ["pre"] },
+  { title: "Tool runs", cols: ["tool"] },
+  { title: "Post-tool", cols: ["post"] },
+  { title: "Turn and session end", cols: ["end", "compact", "sessend"] },
+];
+const BRIEF_ROWS: { title: string; kinds: Kind[]; glyph: Kind }[] = [
+  { title: "On its own", kinds: ["hook"], glyph: "hook" },
+  { title: "You type it", kinds: ["typed", "cmd"], glyph: "typed" },
+  { title: "Claude calls it", kinds: ["model"], glyph: "model" },
+  { title: "A subagent", kinds: ["agent"], glyph: "agent" },
+];
+export const shortLane = (id: string) =>
+  id === "ai-coach-core" ? "engine" : id === "ai-coach" ? "bundle" : id.replace(/-coach$/, "");
+export const shortItem = (i: Item) =>
+  i.kind === "hook" ? i.label.replace(/\.js( · FAIL)?$/, (_, f) => (f ? " (fail)" : "")) : i.kind === "agent" ? i.id.split(":")[1] : i.label;
+
+export function renderBriefSvg(map: LoopMap, opts: { describedBy?: string } = {}): string {
+  const W = 1152, HEAD = 150, COL = (W - HEAD) / BRIEF_COLS.length, CW = COL - 10, PAD = 10, LINE = 16;
+  const out: string[] = [];
+  // spine
+  const spineTop = 48, spineH = 50;
+  BRIEF_COLS.forEach((c, i) => {
+    const x = HEAD + i * COL + 4;
+    out.push(`<rect class="lm-step" x="${x}" y="${spineTop}" width="${CW + 2}" height="${spineH}" rx="6"/>`);
+    wrap(c.title, 14, CW).forEach((line, j, all) =>
+      out.push(t(x + 10, spineTop + (all.length > 1 ? 21 : 30) + j * 18, line, 14, "lm-t", ' font-weight="700"')));
+    if (i < BRIEF_COLS.length - 1) {
+      out.push(`<line class="lm-flow" x1="${x + CW + 2}" y1="${spineTop + 25}" x2="${x + COL}" y2="${spineTop + 25}" marker-end="url(#lm-ah)"/>`);
+    }
+  });
+  // the loop: the result returns to the model turn
+  const midOf = (title: string) => HEAD + BRIEF_COLS.findIndex((c) => c.title === title) * COL + COL / 2;
+  const loopY = 22;
+  out.push(`<path class="lm-arc" d="M${midOf("Post-tool")} ${spineTop} V${loopY} H${midOf("Model turn")} V${spineTop - 2}" marker-end="url(#lm-ah)"/>`);
+  out.push(t(midOf("Model turn") + 14, loopY - 6, must("the result returns to the model: the loop", 12, midOf("Post-tool") - midOf("Model turn")), 12, "lm-t", ' font-weight="600"'));
+
+  // rows
+  let y = spineTop + spineH + 16;
+  BRIEF_ROWS.forEach((row, r) => {
+    const cells = BRIEF_COLS.map((c) => {
+      const here = map.items.filter((i) => row.kinds.includes(i.kind) && c.cols.includes(i.col));
+      const lanes = [...new Set(here.map((i) => i.lane))];
+      return lanes.map((lane) => {
+        const its = here.filter((i) => i.lane === lane);
+        const head = shortLane(lane);
+        return { head: must(head, 12, CW), names: wrap(its.map(shortItem).join(", "), 12, CW), kind: its[0].kind };
+      });
+    });
+    const chipH = (n: number) => 22 + n * LINE;
+    // Place chips. A row whose chips all enter at one step (every typed skill enters at the
+    // prompt) flows rightward from that step instead of stacking a tall column beside empty ones;
+    // its header says where they all enter. A row spread across steps keeps one column per step.
+    type Chip = (typeof cells)[number][number];
+    const placed: { c: Chip; x: number; dy: number }[] = [];
+    const used = cells.flatMap((cs, i) => (cs.length ? [i] : []));
+    let contentH = 0;
+    if (used.length === 1) {
+      const s = used[0], perLine = BRIEF_COLS.length - s, chips = cells[s];
+      for (let k = 0, dy = 0; k < chips.length; k += perLine) {
+        const line = chips.slice(k, k + perLine);
+        line.forEach((c, j) => placed.push({ c, x: HEAD + (s + j) * COL + 5, dy }));
+        dy += Math.max(...line.map((c) => chipH(c.names.length))) + 6;
+        contentH = dy - 6;
+      }
+    } else {
+      cells.forEach((cs, i) => {
+        let dy = 0;
+        for (const c of cs) {
+          placed.push({ c, x: HEAD + i * COL + 5, dy });
+          dy += chipH(c.names.length) + 6;
+        }
+        contentH = Math.max(contentH, dy - 6);
+      });
+    }
+    const title = wrap(row.title, 13, HEAD - 34);
+    const where = used.length === 1 ? wrap(`all at ${BRIEF_COLS[used[0]].title.toLowerCase()}`, 12, HEAD - 34) : [];
+    const rowH = Math.max(52, contentH, 20 + title.length * 17 + where.length * 16) + PAD * 2;
+    out.push(`<rect class="lm-lane ${r % 2 ? "lm-lane-b" : "lm-lane-a"}" x="0" y="${y}" width="${W}" height="${rowH}"/>`);
+    out.push(glyph(row.glyph, 16, y + PAD + 14));
+    title.forEach((line, j) => out.push(t(28, y + PAD + 19 + j * 17, line, 13, "lm-t", ' font-weight="700"')));
+    where.forEach((line, j) => out.push(t(28, y + PAD + 19 + title.length * 17 + j * 16, line, 12, "lm-m")));
+    // A flowed row is one group entering at one step: outline it from that step to the edge, so a
+    // chip that lands under a later column is not read as entering there.
+    if (used.length === 1) {
+      const gx = HEAD + used[0] * COL + 1;
+      out.push(`<rect class="lm-group" x="${gx}" y="${y + PAD - 5}" width="${W - gx - 3}" height="${contentH + 10}" rx="8"/>`);
+    }
+    for (const { c, x, dy } of placed) {
+      const cy = y + PAD + dy;
+      out.push(`<rect class="lm-chip lm-k-${c.kind}" x="${x}" y="${cy}" width="${CW}" height="${chipH(c.names.length)}" rx="5"/>`);
+      out.push(t(x + 8, cy + 17, c.head, 12, "lm-t", ' font-weight="700"'));
+      c.names.forEach((n, j) => out.push(t(x + 8, cy + 17 + (j + 1) * LINE, n, 12, "lm-m")));
+    }
+    y += rowH;
+  });
+  const defs = `<defs><marker id="lm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="lm-head" d="M0 0L10 5L0 10z"/></marker></defs>`;
+  const described = opts.describedBy ? ` aria-describedby="${opts.describedBy}"` : "";
+  return `<svg class="lm lm-brief" viewBox="0 0 ${W} ${y + 4}" role="img" aria-label="${esc(map.title)}, in brief: which coaches act at each step of Claude Code's agent loop, and how each one enters it"${described}>${defs}${out.join("")}</svg>`;
+}
+
 // ── the text twin: the same map for screen readers, crawlers and phones ───────────────────────
 export const srcHref = (src: string) => {
   if (/^https?:/.test(src)) return src;

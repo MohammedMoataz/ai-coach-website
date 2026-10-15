@@ -621,6 +621,23 @@ img {
   color: var(--ink-soft);
 }
 
+/* ---------- Home: the brief loop diagram (lib/loopmap.ts renderBriefSvg) ---------- */
+/* Drawn at 1:1 for the 1152px column; narrower screens scroll it sideways inside its own box,
+   never the page. */
+.loop-brief {
+  margin-top: 8px;
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+.loop-brief svg {
+  display: block;
+  width: 100%;
+  min-width: 960px;
+  height: auto;
+}
+
 /* ---------- Coach page ---------- */
 .page-head {
   padding: 56px 0 40px;
