@@ -15,7 +15,9 @@ export type Skill = {
   modelInvocable: boolean;
   model?: string;
 };
-export type Agent = { name: string; invocation: string; description: string; tools: string[] };
+export type Agent = { name: string; invocation: string; description: string; tools: string[]; model?: string };
+// One binding in a plugin's hooks/hooks.json. A script bound to two events is two hooks.
+export type Hook = { plugin: string; event: string; matcher?: string; script: string; id: string };
 export type Plugin = {
   slug: string;
   description: string;
@@ -30,8 +32,24 @@ export type Catalog = {
   engine: Plugin;
   coaches: Plugin[];
   commands: Skill[];
+  hooks: Hook[];
   counts: { coaches: number; skills: number; modelInvocable: number; agents: number; commands: number };
 };
+
+type HooksFile = { hooks?: Record<string, { matcher?: string; hooks?: { command?: string }[] }[]> };
+
+function toHooks(plugin: string, path: string, text: string): Hook[] {
+  const h = JSON.parse(text) as HooksFile;
+  return Object.entries(h.hooks ?? {}).flatMap(([event, groups]) =>
+    groups.flatMap((g) =>
+      (g.hooks ?? []).map((x) => {
+        const script = /hooks\/([\w.-]+\.js)/.exec(x.command ?? "")?.[1];
+        if (!script) throw new Error(`${path}: ${event} names no hooks/<script>.js`);
+        return { plugin, event, matcher: g.matcher, script, id: `${plugin}:${event}:${script}` };
+      }),
+    ),
+  );
+}
 
 type Marketplace = {
   version: string;
@@ -118,11 +136,14 @@ export function buildCatalog(commit: string, paths: string[], files: Record<stri
         invocation: `${p.name}:${name}`,
         description: str(fm.description)!,
         tools: (str(fm.tools) ?? "").split(",").map((t) => t.trim()).filter(Boolean),
+        model: str(fm.model),
       };
     });
     const commands = found.commands.map((path) => toSkill(p.name, nameOf(path), path, files[path]));
+    const hooksPath = `plugins/${dir}/hooks/hooks.json`;
+    const hooks = files[hooksPath] ? toHooks(p.name, hooksPath, files[hooksPath]) : [];
     const plugin: Plugin = { slug: p.name, description: p.description.trim(), tags: p.tags ?? [], skills, agents };
-    return { plugin, commands };
+    return { plugin, commands, hooks };
   });
 
   const engine = plugins.find((p) => p.plugin.slug === ENGINE)?.plugin;
@@ -139,6 +160,7 @@ export function buildCatalog(commit: string, paths: string[], files: Record<stri
     engine,
     coaches,
     commands,
+    hooks: plugins.flatMap((p) => p.hooks),
     counts: {
       coaches: coaches.length,
       skills: skills.length,
@@ -149,7 +171,7 @@ export function buildCatalog(commit: string, paths: string[], files: Record<stri
   };
 }
 
-const WANTED = /^(\.claude-plugin\/marketplace\.json|plugins\/[^/]+\/(skills\/[^/]+\/SKILL|agents\/[^/]+|commands\/[^/]+)\.(md|json))$/;
+export const WANTED = /^(\.claude-plugin\/marketplace\.json|plugins\/[^/]+\/(skills\/[^/]+\/SKILL|agents\/[^/]+|commands\/[^/]+)\.(md|json)|plugins\/[^/]+\/hooks\/hooks\.json)$/;
 
 async function get(url: string, api: boolean): Promise<Response> {
   const headers: Record<string, string> = {};

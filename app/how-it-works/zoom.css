@@ -1,0 +1,22 @@
+/* §zoom, copied verbatim from design-coach's skeleton; the landing artifact carries the same rules. */
+.zoomable { position: relative; margin: 24px 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); --zoom-height: 420px; }
+.zoomable figcaption { padding: 10px 14px; font-size: 14px; color: var(--muted); border-bottom: 1px solid var(--border); }
+.zoom-viewport { position: relative; height: var(--zoom-height); min-height: 240px; max-height: 1400px; overflow: hidden; resize: vertical; touch-action: none; cursor: grab; }
+.zoom-viewport:focus-visible { outline-offset: -2px; }
+.zoom-viewport.dragging { cursor: grabbing; user-select: none; }
+.zoom-stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+.zoom-stage svg { display: block; max-width: none !important; height: auto; margin: 0; }
+/* No font rule reaches into a diagram. Mermaid measures every label in the page's sans at the
+   host's 16 px and sizes each box to that; restyling its text (a mono face, a size, letter-spacing)
+   after the fact is what pushes words out of their boxes and onto each other. An inline svg
+   inherits the same sans and sets font-size per <text>. */
+.zoom-stage .mermaid { margin: 0; padding: 0; background: none; white-space: normal; }
+.zoom-toolbar { position: absolute; top: 8px; right: 10px; z-index: 2; /* inside the viewport, so a long caption never sits under it */ display: flex; align-items: center; gap: 2px; padding: 2px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--surface); box-shadow: 0 1px 4px rgba(0, 0, 0, .12); opacity: .85; }
+.zoom-toolbar:hover, .zoom-toolbar:focus-within, .zoomable:hover .zoom-toolbar { opacity: 1; }
+.zoom-toolbar button { min-width: 26px; height: 26px; min-height: 0; padding: 0 7px; border: 0; border-radius: 4px; background: transparent; color: var(--muted); font: 500 11px/1 var(--mono); }
+.zoom-toolbar button:hover { background: var(--surface-2); color: var(--text); }
+.zoom-hint { position: absolute; left: 10px; bottom: 8px; z-index: 2; font: 11px/1.4 var(--mono); color: var(--muted); opacity: .75; pointer-events: none; }
+@media (max-width: 560px) { .zoom-hint { display: none; } }
+.zoomable:fullscreen { display: flex; flex-direction: column; margin: 0; border: 0; border-radius: 0; background: var(--bg); }
+.zoomable:fullscreen .zoom-viewport { flex: 1; height: auto; max-height: none; resize: none; }
+@media (prefers-reduced-motion: no-preference) { .zoom-stage { transition: transform .06s linear; } .zoom-viewport.dragging .zoom-stage { transition: none; } }

@@ -51,6 +51,9 @@ export function Nav({ coaches }: { coaches: string[] }) {
           aria-haspopup
           onClick={(e) => menu.current?.toggle(e)}
         />
+        <Link href="/how-it-works" className="nav-link nav-hide-sm">
+          How it works
+        </Link>
         <Link href="/install" className="nav-link nav-hide-sm">
           Install
         </Link>

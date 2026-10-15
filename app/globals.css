@@ -18,8 +18,10 @@
   --navy: #14276b;
   --warn: #8a4d08;
   --ok: #1f7a4a;
+  --k-manual: #5e7794;
   --k-auto: #0b8fa9;
   --k-chain: #3e63c8;
+  --k-hook: #c27c12;
   --term-bg: #061524;
   --term-ink: #c9dcf2;
   --term-dim: #7f9bb8;
@@ -47,8 +49,10 @@
   --navy: #8fa6ee;
   --warn: #e0a253;
   --ok: #4cc38a;
+  --k-manual: #91a9c2;
   --k-auto: #14d6f2;
   --k-chain: #7c97e8;
+  --k-hook: #e0a253;
   --glow: rgba(20, 214, 242, 0.16);
 }
 

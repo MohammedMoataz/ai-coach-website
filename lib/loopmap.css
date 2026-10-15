@@ -1,0 +1,31 @@
+/* The agent-loop diagram (lib/loopmap.ts). Shared verbatim by /how-it-works and the landing
+   artifact's "How it works" tab, so the two can only differ in their tokens, never their rules.
+   Strokes measured ≥ 3:1 and text ≥ 4.5:1 against both lane fills in both themes. No font or
+   spacing rules on svg text: sizes are attributes and the face is inherited (design-coach). */
+.lm text { fill: var(--text); }
+.lm .lm-m { fill: var(--muted); }
+.lm .lm-note { fill: var(--ink-soft); }
+.lm-lane-a { fill: var(--bg); }
+.lm-lane-b { fill: var(--surface); }
+.lm-rule { stroke: var(--border); stroke-width: 1; }
+.lm-step { fill: var(--surface); stroke: var(--text); stroke-width: 1.5; }
+.lm-flow, .lm-arc { fill: none; stroke: var(--text); stroke-width: 2; }
+.lm-edge { fill: none; stroke: var(--k-chain); stroke-width: 1.5; }
+.lm-head { fill: var(--text); }
+.lm .lm-halo { paint-order: stroke; stroke: var(--bg); stroke-width: 5px; stroke-linejoin: round; }
+.lm-chip { fill: var(--surface); stroke-width: 2; }
+.lm-k-typed { stroke: var(--k-manual); }
+.lm-k-cmd { stroke: var(--navy); stroke-width: 3; }
+.lm-k-model { stroke: var(--k-auto); }
+.lm-k-agent { stroke: var(--k-chain); }
+.lm-k-hook { stroke: var(--k-hook); }
+.lm-k-store { stroke: var(--muted); stroke-dasharray: 7 4; }
+.lm-fail { stroke-dasharray: 4 3; }
+.lm-g-typed { fill: var(--k-manual); }
+.lm-g-cmd { fill: var(--navy); stroke: var(--navy); }
+.lm-g-model { fill: var(--k-auto); }
+.lm-g-agent { fill: var(--k-chain); }
+.lm-g-hook { fill: var(--k-hook); }
+.lm-g-store { fill: none; stroke: var(--muted); stroke-width: 1.5; }
+.lm-call { fill: var(--text); }
+.lm .lm-call-n { fill: var(--surface); }

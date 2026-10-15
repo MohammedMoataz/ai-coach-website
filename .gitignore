@@ -42,3 +42,6 @@ next-env.d.ts
 
 # copied from primereact at dev/build time
 /app/lara.css
+
+# the landing artifact, built by artifact/build.mjs and published with the Artifact tool
+/artifact/out.html

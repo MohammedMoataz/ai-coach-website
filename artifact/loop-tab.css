@@ -1,0 +1,8 @@
+/* The "How it works" tab. The canvas breaks out of the reading column to the full window width,
+   and takes the window's height below the sticky header; the text twin below reads like the page. */
+.loop-canvas { margin: 8px 0 0 calc(50% - 50vw + 16px); width: calc(100vw - 32px); }
+.lm-twin { margin-top: 32px; max-width: 90ch; }
+.lm-twin h2 { margin: 0 0 8px; }
+.lm-twin h3 { margin: 28px 0 10px; }
+.lm-twin h4 { margin: 20px 0 4px; font: 600 15px/1.4 var(--mono); }
+.lm-twin li { margin: 6px 0; line-height: 1.55; }
