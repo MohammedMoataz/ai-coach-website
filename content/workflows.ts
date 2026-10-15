@@ -155,6 +155,29 @@ export const workflows: Record<string, Workflow> = {
     ],
     next: "/investigation-coach:map and /strategy-coach:blueprint chain it before they publish.",
   },
+  // pair-coach: hooks/mentions-nudge.js; scripts/mentions.js; skills/mentions/SKILL.md; skills/pair/SKILL.md
+  "pair-coach": {
+    title: "A question in the code, answered in the code",
+    steps: [
+      { kind: "you", label: "Write @claude in a comment", detail: "A question or an instruction, where it belongs: // @claude why a Map?" },
+      { kind: "auto", label: "The prompt hook notices", detail: "Only lines you added and have not committed. One line of context naming where." },
+      { kind: "gate", label: "Someone else's line?", detail: "A @claude line a teammate committed is asked about first, never just obeyed." },
+      { kind: "auto", label: "Answered inline", detail: "A reply under it, or the change plus one line saying so, or a question back.", skill: "/pair-coach:mentions" },
+      { kind: "output", label: "Addressed to you", detail: "By your own git user.name. Delete the thread when you are done with it." },
+    ],
+    next: "/pair-coach:pair builds a task and leaves you the few lines that are your call.",
+  },
+  // ship-coach: skills/commit/SKILL.md; scripts/context.js
+  "ship-coach": {
+    title: "From a finished change to a PR, after one look",
+    steps: [
+      { kind: "you", label: "Type the command", detail: "Add --pr to push and open a PR, --issue N to close an issue.", skill: "/ship-coach:commit" },
+      { kind: "auto", label: "State in one read", detail: "Branch, files, the last 15 subjects for style, the diff capped at 12 KB." },
+      { kind: "auto", label: "Drafted on Haiku", detail: "Subject in the repo's own style; the body says why; Fixes #N when known." },
+      { kind: "gate", label: "One look at the plan", detail: "Message, branch, files, push, PR, issue: run all, edit, commit only, or cancel." },
+      { kind: "output", label: "Commit, branch, PR", detail: "Never a force-push, never a skipped hook. The board moves the issue itself." },
+    ],
+  },
 };
 
 // Strip arguments: "/memory-coach:handoff import" -> "/memory-coach:handoff".

@@ -1,0 +1,46 @@
+/* /how-it-works: the canvas takes the viewport below the nav, minus room to see the page goes on.
+   Never a full 100dvh: the viewport captures wheel and touch, so a canvas that fills the screen
+   would trap the page. Phones get a shorter canvas; the text twin is their real reading surface. */
+.how-head {
+  padding-bottom: 24px;
+}
+.how-canvas {
+  margin: 0 16px;
+  --zoom-height: calc(100dvh - 60px - 96px);
+}
+@media (max-width: 640px) {
+  .how-canvas {
+    margin: 0;
+    --zoom-height: 60dvh;
+  }
+}
+.how-twin {
+  padding: 48px 0 72px;
+  color: var(--ink-soft);
+}
+.how-twin h2 {
+  font-size: 28px;
+  margin-bottom: 8px;
+}
+.how-twin h3 {
+  margin: 32px 0 12px;
+  font-size: 20px;
+}
+.how-twin h4 {
+  margin: 24px 0 4px;
+  font: 600 16px/1.4 var(--mono);
+  color: var(--text);
+}
+.how-twin ol,
+.how-twin ul {
+  padding-left: 1.4em;
+  max-width: 90ch;
+}
+.how-twin li {
+  margin: 6px 0;
+  line-height: 1.55;
+}
+.how-twin code {
+  font-family: var(--mono);
+  color: var(--text);
+}

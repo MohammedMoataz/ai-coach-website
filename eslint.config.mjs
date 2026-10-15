@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // A verbatim copy of design-coach's zoom script: diffed against its source, never edited here.
+    "public/zoom.js",
   ]),
 ]);
 

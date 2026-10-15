@@ -113,6 +113,10 @@ export default async function Home() {
               <Link href="/engine">
                 Inside the engine <i className="pi pi-arrow-right" aria-hidden style={{ fontSize: 12 }} />
               </Link>
+              {" · "}
+              <Link href="/how-it-works">
+                See every coach in the agent loop <i className="pi pi-arrow-right" aria-hidden style={{ fontSize: 12 }} />
+              </Link>
             </p>
           </Reveal>
         </div>

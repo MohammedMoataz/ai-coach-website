@@ -1,0 +1,252 @@
+/* Layout: a sticky brand bar with a scrolling tab strip; one panel per coach below it, each a
+   column of skill cards (arguments beside steps on wide screens, stacked on phones).
+   Palette from the AI Coach mark itself (design brief): navy and electric cyan, and the blue that
+   exists only where the two rings overlap, reserved for the chained route. Light on bare :root,
+   dark redefined twice — same names, as artifact-style requires. Type: IBM Plex Mono for display
+   and code, IBM Plex Sans for reading. */
+:root {
+  color-scheme: light;
+  --bg: #f2f7fc;  --surface: #ffffff;  --surface-2: #e7f0f9;
+  --border: #cbdaea;  --border-strong: #8fa9c4;
+  --text: #06182b;  --ink-soft: #2c4a68;  --muted: #4c6582;
+  --accent: #0a7389;  --accent-hover: #14527e;  --accent-contrast: #ffffff;
+  --accent-2: #16699e;  --accent-2-ink: #ffffff;
+  --navy: #14276b;  --warn: #8a4d08;
+  --k-manual: #5e7794;  --k-auto: #0b8fa9;  --k-chain: #3e63c8;  --k-hook: #c27c12;
+  --term-bg: #061524;  --term-ink: #c9dcf2;  --term-dim: #7f9bb8;
+  --sans: "IBM Plex Sans", -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+  --mono: "IBM Plex Mono", "JetBrains Mono", ui-monospace, Consolas, Menlo, monospace;
+  --radius: 6px;
+  --logo: url("__LOGO__");
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --bg: #04101f;  --surface: #0a1b2e;  --surface-2: #102640;
+    --border: #1d3a5a;  --border-strong: #35587e;
+    --text: #dce9f5;  --ink-soft: #b2c7dc;  --muted: #91a9c2;
+    --accent: #14d6f2;  --accent-hover: #7ae8f8;  --accent-contrast: #04101f;
+    --accent-2: #2e9bd6;  --accent-2-ink: #04101f;
+    --navy: #8fa6ee;  --warn: #e0a253;
+    --k-manual: #91a9c2;  --k-auto: #14d6f2;  --k-chain: #7c97e8;  --k-hook: #e0a253;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --bg: #04101f;  --surface: #0a1b2e;  --surface-2: #102640;
+  --border: #1d3a5a;  --border-strong: #35587e;
+  --text: #dce9f5;  --ink-soft: #b2c7dc;  --muted: #91a9c2;
+  --accent: #14d6f2;  --accent-hover: #7ae8f8;  --accent-contrast: #04101f;
+  --accent-2: #2e9bd6;  --accent-2-ink: #04101f;
+  --navy: #8fa6ee;  --warn: #e0a253;
+  --k-manual: #91a9c2;  --k-auto: #14d6f2;  --k-chain: #7c97e8;  --k-hook: #e0a253;
+}
+
+/* §base */
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.55 var(--sans); overflow-wrap: anywhere; }
+.wrap { max-width: 72rem; margin: 0 auto; padding: 32px 16px 64px; }
+.prose { max-width: 68ch; }
+h1 { font-size: clamp(26px, 4vw, 39px); line-height: 1.15; margin: 0 0 8px; text-wrap: balance; }
+h2 { font-size: 25px; line-height: 1.25; margin: 40px 0 8px; }
+h3 { font-size: 20px; line-height: 1.3; margin: 24px 0 8px; }
+p, li { margin: 0 0 8px; }
+a { color: var(--accent); text-underline-offset: 2px; }
+a:hover { color: var(--accent-hover); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.muted { color: var(--muted); }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; container-type: inline-size; }
+.grid { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr)); } /* never a bare 1fr: its minimum is auto */
+.row { display: flex; gap: 16px; flex-wrap: wrap; }
+.tag { display: inline-block; padding: 1px 8px; border-radius: 999px; background: var(--accent-2); color: var(--accent-2-ink); font: 500 12px/1.6 var(--mono); }
+button, .btn { min-height: 28px; padding: 0 10px; border: 1px solid var(--border-strong); border-radius: 4px; background: var(--surface-2); color: var(--text); font: 13px/1 var(--sans); cursor: pointer; }
+.btn-primary { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+
+/* §overflow — text never leaves its box. The trap is flex/grid children defaulting to
+   min-width:auto (they refuse to shrink); the fixes are one class per content type. */
+.row > *, .grid > * { min-width: 0; }
+.tablewrap { overflow-x: auto; max-width: 100%; }              /* a table scrolls; the page never does */
+table { border-collapse: collapse; width: 100%; }
+caption { text-align: left; color: var(--muted); padding: 0 0 6px; font-size: 14px; }
+th, td { padding: 6px 10px; border-bottom: 1px solid var(--border); text-align: left; vertical-align: top; overflow-wrap: normal; font-size: 15px; } /* one size for every cell */
+thead th { position: sticky; top: 0; background: var(--surface); font-weight: 600; }
+.trunc { display: block; max-width: 24ch; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; min-width: 0; } /* a block INSIDE the td (a td ignores max-width); pair with title="full text" */
+.clamp2 { display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; overflow: hidden; } /* pair with title="" */
+.anywhere { overflow-wrap: anywhere; }                        /* URLs, hashes, ids: break, never hide */
+.num { font-variant-numeric: tabular-nums; white-space: nowrap; }
+.kpi { font-size: clamp(22px, 4vw, 36px); line-height: 1.1; font-weight: 600; }  /* shrinks, never clamps */
+pre { overflow-x: auto; white-space: pre; margin: 0 0 12px; padding: 12px 14px; background: var(--surface-2); border-radius: var(--radius); font: 13px/1.6 var(--mono); }
+pre.wrap { white-space: pre-wrap; }                            /* prose in a pre, not code */
+code { font-family: var(--mono); font-size: .92em; }
+
+/* §zoom — every diagram (inline svg or mermaid) lives in figure.zoomable: the pan/zoom canvas a
+   Markdown preview gives a diagram. The viewport has a fixed starting height (--zoom-height,
+   per figure; the reader may drag its bottom edge) so zooming never reflows the page. Nothing
+   scrolls — the viewport clips and the canvas moves with translate+scale. Text tools top-right
+   (− 100% + ⤢ ⛶), a one-line hint bottom-left, both faded until the figure is hovered. */
+.zoomable { position: relative; margin: 24px 0; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); --zoom-height: 420px; }
+.zoomable figcaption { padding: 10px 14px; font-size: 14px; color: var(--muted); border-bottom: 1px solid var(--border); }
+.zoom-viewport { position: relative; height: var(--zoom-height); min-height: 240px; max-height: 1400px; overflow: hidden; resize: vertical; touch-action: none; cursor: grab; }
+.zoom-viewport:focus-visible { outline-offset: -2px; }
+.zoom-viewport.dragging { cursor: grabbing; user-select: none; }
+.zoom-stage { position: absolute; left: 0; top: 0; transform-origin: 0 0; will-change: transform; }
+.zoom-stage svg { display: block; max-width: none !important; height: auto; margin: 0; }
+/* No font rule reaches into a diagram. Mermaid measures every label in the page's sans at the
+   host's 16 px and sizes each box to that; restyling its text (a mono face, a size, letter-spacing)
+   after the fact is what pushes words out of their boxes and onto each other. An inline svg
+   inherits the same sans and sets font-size per <text>. */
+.zoom-stage .mermaid { margin: 0; padding: 0; background: none; white-space: normal; }
+.zoom-toolbar { position: absolute; top: 8px; right: 10px; z-index: 2; /* inside the viewport, so a long caption never sits under it */ display: flex; align-items: center; gap: 2px; padding: 2px; border: 1px solid var(--border-strong); border-radius: 6px; background: var(--surface); box-shadow: 0 1px 4px rgba(0, 0, 0, .12); opacity: .85; }
+.zoom-toolbar:hover, .zoom-toolbar:focus-within, .zoomable:hover .zoom-toolbar { opacity: 1; }
+.zoom-toolbar button { min-width: 26px; height: 26px; min-height: 0; padding: 0 7px; border: 0; border-radius: 4px; background: transparent; color: var(--muted); font: 500 11px/1 var(--mono); }
+.zoom-toolbar button:hover { background: var(--surface-2); color: var(--text); }
+.zoom-hint { position: absolute; left: 10px; bottom: 8px; z-index: 2; font: 11px/1.4 var(--mono); color: var(--muted); opacity: .75; pointer-events: none; }
+@media (max-width: 560px) { .zoom-hint { display: none; } }
+.zoomable:fullscreen { display: flex; flex-direction: column; margin: 0; border: 0; border-radius: 0; background: var(--bg); }
+.zoomable:fullscreen .zoom-viewport { flex: 1; height: auto; max-height: none; resize: none; }
+@media (prefers-reduced-motion: no-preference) { .zoom-stage { transition: transform .06s linear; } .zoom-viewport.dragging .zoom-stage { transition: none; } }
+
+
+/* §page — components built on the skeleton */
+html { scroll-padding-top: 120px; }
+h1, h2, h3, h4 { font-family: var(--mono); letter-spacing: -0.02em; color: var(--text); }
+h4 { font-size: 16px; line-height: 1.35; margin: 0 0 8px; }
+.prose { max-width: 70ch; }
+.small { font-size: 14px; }
+.dim { color: var(--term-dim); }
+.wrap { padding-block: 24px 64px; }
+
+/* header + tabs */
+.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: color-mix(in srgb, var(--bg) 92%, transparent); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+.top-in { max-width: 72rem; margin: 0 auto; padding: 12px 16px 6px; display: flex; flex-wrap: wrap; align-items: center; gap: 8px 24px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--text); text-decoration: none; font: 600 15px/1 var(--mono); }
+.mark { display: block; width: 26px; height: 26px; background: var(--logo) center / contain no-repeat; flex: 0 0 auto; }
+.top-meta { margin: 0; font: 12px/1.4 var(--mono); color: var(--muted); }
+.tabbar { max-width: 72rem; margin: 0 auto; padding: 0 16px; display: flex; gap: 2px; overflow-x: auto; scrollbar-width: thin; }
+.tabbar button { flex: 0 0 auto; min-height: 40px; padding: 0 12px; border: 0; border-bottom: 2px solid transparent; border-radius: 0; background: none; color: var(--muted); font: 500 13px/1 var(--mono); letter-spacing: .02em; white-space: nowrap; }
+.tabbar button:hover { color: var(--text); }
+.tabbar button[aria-selected="true"] { color: var(--text); border-bottom-color: var(--accent); }
+.tabbar .coach-tab { color: var(--ink-soft); }
+.tabbar button:not(.coach-tab) + .coach-tab { margin-left: 10px; border-left: 1px solid var(--border); }
+
+/* panels */
+.panel { display: block; }
+.panel[hidden] { display: none; }
+.panel-head { padding-block: 16px 8px; }
+.panel-head h2 { font-size: clamp(20px, 2.6vw, 26px); line-height: 1.3; margin: 4px 0 12px; max-width: 46ch; text-wrap: balance; }
+.eyebrow { margin: 0; font: 500 12px/1.5 var(--mono); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+.kicker { margin: 0 0 6px; font: 500 11.5px/1.5 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.meta { margin: 12px 0; gap: 8px; }
+.pill { display: inline-block; padding: 2px 10px; border: 1px solid var(--border-strong); border-radius: 999px; font: 12px/1.6 var(--mono); color: var(--ink-soft); }
+.install { margin: 12px 0; background: var(--term-bg); color: var(--term-ink); border: 1px solid var(--border); }
+.note { margin: 12px 0 0; padding: 10px 14px; border-left: 3px solid var(--k-chain); background: var(--surface); border-radius: 0 var(--radius) var(--radius) 0; max-width: 80ch; font-size: 15px; }
+.toc { display: flex; flex-wrap: wrap; gap: 6px 14px; margin: 8px 0 0; font: 13px/1.6 var(--mono); }
+h3.sub { margin: 40px 0 12px; font-size: 20px; }
+h2.section { margin: 48px 0 8px; font-size: 22px; }
+
+/* how-it-is-called badges: colour plus a distinct marker shape, so state reads without colour */
+.badges { display: inline-flex; flex-wrap: wrap; gap: 6px; }
+.badge { display: inline-flex; align-items: center; gap: 6px; padding: 2px 9px 2px 7px; border: 1px solid var(--border-strong); border-radius: 999px; background: var(--surface); color: var(--text); font: 500 12px/1.6 var(--mono); white-space: nowrap; }
+.badge::before { content: ""; width: 9px; height: 9px; flex: 0 0 auto; background: var(--k); }
+.k-manual { --k: var(--k-manual); }
+.k-manual::before { border-radius: 1px; }
+.k-auto { --k: var(--k-auto); border-color: var(--k-auto); }
+.k-auto::before { border-radius: 50%; }
+.k-chain { --k: var(--k-chain); border-color: var(--k-chain); }
+.k-chain::before { transform: rotate(45deg) scale(.85); }
+.k-hook { --k: var(--k-hook); border-color: var(--k-hook); }
+.k-hook::before { clip-path: polygon(50% 0, 100% 100%, 0 100%); }
+
+/* skill card */
+.skill { margin: 20px 0; padding: 20px; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); display: grid; gap: 14px; scroll-margin-top: 120px; }
+.skill-head { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 14px; }
+.skill-head h3 { margin: 0; font-size: clamp(16px, 2.2vw, 19px); }
+.skill-head h3 code { font-size: 1em; color: var(--text); }
+.lede { margin: 0; font-size: 17px; color: var(--ink-soft); max-width: 75ch; }
+.howbox { padding: 12px 14px; background: var(--surface-2); border-radius: var(--radius); }
+.howbox p { margin: 0 0 6px; }
+.howbox .triggers { margin: 0; font-size: 14px; color: var(--muted); }
+.q { display: inline-block; margin: 2px 2px 0 0; padding: 0 7px; border-radius: 4px; background: var(--surface); color: var(--text); font: 13px/1.7 var(--mono); }
+.skill-grid { display: grid; gap: 16px 28px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); }
+.skill-grid > * { min-width: 0; }
+.steps { margin: 0; padding-left: 22px; }
+.steps li { margin: 0 0 6px; padding-left: 2px; }
+table.args th { width: 1%; white-space: nowrap; font-weight: 500; }
+table.args th code { color: var(--accent-hover); }
+table.args td, table.args th { font-size: 14px; padding: 5px 10px 5px 0; }
+.facts { margin: 0; display: grid; gap: 10px 24px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 240px), 1fr)); border-top: 1px solid var(--border); padding-top: 12px; }
+.facts > div { min-width: 0; }
+.facts dt { font: 500 11.5px/1.5 var(--mono); letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.facts dd { margin: 2px 0 0; font-size: 15px; }
+
+/* tables */
+table.wide th[scope="row"], .callmap th[scope="row"] { white-space: nowrap; }
+tbody th[scope="row"] { font-weight: 500; }
+.callmap td, .callmap th { font-size: 14px; }
+.callmap tr[hidden] { display: none; }
+.tablewrap { margin: 8px 0 20px; border: 1px solid var(--border); border-radius: var(--radius); background: var(--surface); }
+.skill .tablewrap { border: 0; margin: 0; background: none; }
+.tablewrap caption { padding: 10px 10px 6px; }
+.tablewrap th, .tablewrap td { padding-left: 10px; }
+
+/* call map */
+.ways .card p { margin: 0 0 6px; }
+.ways .kpi { margin: 4px 0; }
+.filters { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0 8px; }
+.chip { min-height: 32px; border-radius: 999px; padding: 0 12px; font: 500 13px/1 var(--mono); }
+.chip[aria-pressed="true"] { background: var(--accent); color: var(--accent-contrast); border-color: var(--accent); }
+
+/* overview */
+.hero { display: grid; gap: 24px 48px; align-items: center; grid-template-columns: repeat(auto-fit, minmax(min(100%, 360px), 1fr)); padding-block: 24px 8px; }
+.hero > * { min-width: 0; }
+.hero h1 { font-size: clamp(30px, 5vw, 50px); line-height: 1.08; letter-spacing: -0.035em; margin: 14px 0 18px; max-width: 16ch; }
+.lead { font-size: 18px; line-height: 1.6; color: var(--ink-soft); max-width: 58ch; margin: 0 0 20px; }
+.hero-art { width: 100%; max-width: 460px; height: auto; justify-self: center; }
+.h-edges path { fill: none; stroke: var(--k-auto); stroke-width: 1.2; opacity: .55; }
+.h-me { fill: var(--surface); stroke: var(--navy); stroke-width: 2; }
+.h-me-dot { fill: var(--navy); }
+.h-node { fill: var(--surface); stroke: var(--k-auto); stroke-width: 2; }
+.h-dot { fill: var(--k-auto); }
+.h-pulse { fill: var(--accent-2); animation: travel 4.8s ease-in-out infinite; }
+@keyframes travel { 0% { offset-distance: 0%; opacity: 0; } 15% { opacity: 1; } 85% { opacity: 1; } 100% { offset-distance: 100%; opacity: 0; } }
+.coach-card { display: flex; flex-direction: column; gap: 8px; color: var(--text); text-decoration: none; transition: border-color .15s ease; }
+.coach-card:hover { border-color: var(--accent); color: var(--text); }
+.coach-card p { margin: 0; }
+.coach-line { font-size: 15px; color: var(--ink-soft); }
+.engine-card { border-color: var(--accent); }
+.chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: auto; }
+.chip-s { display: inline-block; padding: 0 7px; border-radius: 4px; font: 12px/1.7 var(--mono); border: 1px solid var(--border-strong); color: var(--text); }
+.cs-auto { border-color: var(--k-auto); box-shadow: inset 3px 0 0 var(--k-auto); }
+.cs-manual { box-shadow: inset 3px 0 0 var(--k-manual); }
+.cs-hook { border-color: var(--k-hook); box-shadow: inset 3px 0 0 var(--k-hook); }
+.legend { margin-top: 12px; }
+.days .card p { margin: 0; color: var(--ink-soft); font-size: 15px; }
+.two { grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr)); margin: 16px 0 24px; }
+.two .card p { font-size: 15px; }
+.stats { grid-template-columns: repeat(auto-fit, minmax(min(100%, 200px), 1fr)); margin: 8px 0; }
+.stats .card p { margin: 0; }
+.detectors { display: grid; gap: 8px 24px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr)); margin: 8px 0 24px; }
+.detectors > div { min-width: 0; display: flex; flex-direction: column; padding: 8px 12px; border-left: 3px solid var(--k-auto); background: var(--surface); border-radius: 0 var(--radius) var(--radius) 0; }
+.detectors span { font-size: 14px; }
+.foot { margin-top: 56px; padding-top: 16px; border-top: 1px solid var(--border); }
+
+/* diagram parts — colours only, never type; sizes are set per <text> */
+.d-node { fill: var(--surface-2); stroke: var(--border-strong); stroke-width: 1.5; }
+.d-on { stroke: var(--accent); stroke-width: 2; }
+.d-gate { stroke: var(--k-hook); stroke-width: 2; }
+.d-t { fill: var(--text); }
+.d-a { fill: var(--accent-hover); }
+.d-m { fill: var(--muted); }
+.d-e { stroke: var(--muted); stroke-width: 1.6; fill: none; }
+.d-dash { stroke-dasharray: 5 4; }
+.d-head { fill: var(--muted); }
+.d-rule { stroke: var(--border-strong); stroke-width: 1; }
+
+@media (prefers-reduced-motion: reduce) {
+  .h-pulse { animation: none; opacity: 0; }
+  * { scroll-behavior: auto !important; }
+}
+@media (max-width: 560px) {
+  .skill { padding: 14px; }
+  .tabbar button:not(.coach-tab) + .coach-tab { margin-left: 0; }
+}

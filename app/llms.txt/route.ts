@@ -22,6 +22,7 @@ export async function GET() {
     "## Pages",
     "",
     `- [Install](${SITE_URL}/install): requirements, single-coach installs, and setup for Cursor, Codex, opencode and other MCP harnesses`,
+    `- [How it works](${SITE_URL}/how-it-works): Claude Code's agent loop, step by step, with every hook, skill, command and agent at the step where it acts, and the special cases`,
     `- [The engine](${SITE_URL}/engine): ${pitch["ai-coach-core"]}`,
     "",
     "## Coaches",

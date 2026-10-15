@@ -21,6 +21,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   return [
     { path: "/", priority: 1 },
     { path: "/install", priority: 0.9 },
+    { path: "/how-it-works", priority: 0.8 },
     { path: "/engine", priority: 0.7 },
     ...coaches.map((c) => ({ path: `/coaches/${c.slug}`, priority: 0.7 })),
   ].map(({ path, priority }) => ({ url: `${SITE_URL}${path}`, lastModified, changeFrequency: "weekly", priority }));

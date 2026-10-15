@@ -53,6 +53,8 @@ export const pitch: Record<string, string> = {
   "strategy-coach": "Document what the business is, mapped to the code that implements it, and specify what comes next with a checkable definition of done.",
   "analysis-coach": "The business-analyst half: requirements nobody can argue about later, data turned into an analysis that has already been argued with, and the version an executive reads.",
   "design-coach": "How a published page should look, made checkable: text that stays in its box, zoomable diagrams, the project's own fonts and palette, and WCAG contrast in both themes.",
+  "pair-coach": "Talk to Claude through the code: write // @claude to ask or instruct, and the answer or the change lands inline, addressed to you by your own git name.",
+  "ship-coach": "A finished change to a commit, a branch and a PR that closes its issue, drafted on Haiku in your repo's own style, after one look at the whole plan.",
 };
 
 export const evidence = {
@@ -66,9 +68,9 @@ export const evidence = {
     "What could not be determined is a required field, not an omission.",
   ],
   cost: {
-    value: "~1,900",
+    value: "~2,050",
     label: "tokens of always-loaded context per session",
-    note: "Expected, not re-probed: a live probe measured ~700 before v1.14; the rest is arithmetic on eight new skill descriptions. User-only skills cost nothing until you type them.",
+    note: "Expected, not re-probed: a live probe measured ~700 before v1.14; the rest is arithmetic on nine new skill descriptions. User-only skills cost nothing until you type them.",
   },
 };
 
