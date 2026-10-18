@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { IBM_Plex_Mono, IBM_Plex_Sans } from "next/font/google";
 import "primeicons/primeicons.css";
 import "./lara.css";
@@ -44,6 +45,8 @@ export default async function RootLayout({ children }: LayoutProps<"/">) {
           <main id="main">{children}</main>
           <Footer version={catalog.version} coaches={catalog.coaches.map((c) => c.slug)} />
         </Providers>
+        {/* Gental chat widget, on every page. */}
+        <Script src="https://cdn-stg.gental.ai/w.js" strategy="afterInteractive" data-agent="pk_live_UDLVBWM-Fg5k8T6zAH4_rd4D" data-locale="en" />
       </body>
     </html>
   );
