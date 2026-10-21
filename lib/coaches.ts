@@ -149,7 +149,9 @@ export function buildCatalog(commit: string, paths: string[], files: Record<stri
   const engine = plugins.find((p) => p.plugin.slug === ENGINE)?.plugin;
   if (!engine) throw new Error(`marketplace.json: no ${ENGINE}`);
   const coaches = plugins.map((p) => p.plugin).filter((p) => p.slug !== ENGINE && p.slug !== BUNDLE);
-  const commands = plugins.find((p) => p.plugin.slug === BUNDLE)?.commands ?? [];
+  // Bundle commands first, then any a single coach ships for its own sequence.
+  const bundle = plugins.find((p) => p.plugin.slug === BUNDLE);
+  const commands = [...(bundle?.commands ?? []), ...plugins.filter((p) => p !== bundle).flatMap((p) => p.commands)];
 
   const all = plugins.map((p) => p.plugin);
   const skills = all.flatMap((p) => p.skills);

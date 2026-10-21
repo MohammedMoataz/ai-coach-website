@@ -247,7 +247,7 @@ export default async function Home() {
         <div className="wrap">
           <Head
             eyebrow="Commands"
-            h="The sequences that span the coaches, typed once."
+            h="The sequences, typed once."
             lede={
               c.commands.every((cmd) => !cmd.modelInvocable)
                 ? "User-only: they cost nothing until you type them."
