@@ -1,6 +1,6 @@
 name: CI
 on:
-  pull_request:
+  # main only: Actions minutes are limited, so branches and PRs are checked on the PC.
   push:
     branches: [main]
 
