@@ -33,11 +33,15 @@
 
 /* Motion: the arrows march the way the turn flows, and a glow walks the steps in order, lighting
    each step with the chips that act at it (--i from lib/loopmap.ts, --n on the svg). The glow is a
-   filter, so strokes and fills keep their measured contrast. Off for reduced motion. */
+   filter, so strokes and fills keep their measured contrast. Off for reduced motion, and off when
+   the page's "Pause animation" checkbox (.lm-pause) is ticked: it loops, so it must be stoppable. */
 @media (prefers-reduced-motion: no-preference) {
   .lm-flow, .lm-arc { stroke-dasharray: 8 6; animation: lm-march .9s linear infinite; }
   .lm-step, .lm-chip { animation: lm-on calc(var(--n) * 1s) calc(var(--i) * 1s) infinite; }
 }
+:root:has(.lm-pause input:checked) .lm * { animation: none; }
+.lm-pause { display: inline-flex; align-items: center; gap: 6px; cursor: pointer; }
+@media (prefers-reduced-motion: reduce) { .lm-pause { display: none; } }
 @keyframes lm-march { to { stroke-dashoffset: -14; } }
 @keyframes lm-on {
   0%, 9% { filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 2px var(--accent)); }

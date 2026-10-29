@@ -133,7 +133,10 @@ export default async function Home() {
           <Reveal>
             <div className="loop-brief" dangerouslySetInnerHTML={{ __html: renderBriefSvg(loopmap) }} />
           </Reveal>
-          <p style={{ marginTop: 20 }}>
+          <p style={{ marginTop: 20, display: "flex", flexWrap: "wrap", gap: "8px 24px" }}>
+            <label className="lm-pause muted">
+              <input type="checkbox" /> Pause animation
+            </label>
             <Link href="/how-it-works">
               See the full map, with every hook, skill and special case{" "}
               <i className="pi pi-arrow-right" aria-hidden style={{ fontSize: 12 }} />
