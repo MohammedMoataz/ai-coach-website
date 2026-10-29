@@ -483,7 +483,7 @@ function loopPanel() {
     <p class="muted prose">Columns are the loop's steps, rows are the plugins: ${N.coaches} coaches, the engine's ${catalog.hooks.filter((h) => h.plugin === 'ai-coach-core').length} hook bindings, ${N.skills} skills, ${N.agents} agents and ${N.commands} commands, each where it enters. A chip's outline and mark say how it enters; the numbered circles are the special cases. <a href="#loop-text">Read it as text</a>.</p>
   </div>
   <figure class="zoomable loop-canvas" style="--zoom-height: calc(100vh - 170px)">
-  <figcaption>The agent loop and AI Coach. Drag to move, ctrl + wheel to zoom, f to fit, the last button for full screen.</figcaption>
+  <figcaption>The agent loop and AI Coach. Drag to move, ctrl + wheel to zoom, f to fit, the last button for full screen. <label class="lm-pause"><input type="checkbox"> Pause animation</label></figcaption>
   <div class="zoom-viewport" tabindex="0" aria-label="Agent loop diagram; pan and zoom">
     <div class="zoom-toolbar" role="group" aria-label="Diagram zoom">
       <button type="button" data-zoom="out" aria-label="Zoom out" title="Zoom out (−)">&minus;</button>

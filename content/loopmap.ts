@@ -137,6 +137,8 @@ export const loopmap: LoopMap = {
       notes: ["teammates import it", "nothing leaves on its own"], src: "plugins/memory-coach/skills/handoff/SKILL.md:59" },
 
     // ── investigation-coach ─────────────────────────────────────────────────────────────────
+    { id: "/investigation-coach:investigate", lane: "investigation-coach", col: "prompt", kind: "cmd", label: "/investigate", role: "all three, in order",
+      src: "plugins/investigation-coach/commands/investigate.md:12" },
     { id: "/investigation-coach:onboard", lane: "investigation-coach", col: "model", kind: "model", label: "onboard", role: "onboarding docs",
       gate: "states the cost before starting", writes: "docs/onboarding/", src: "plugins/investigation-coach/skills/onboard/SKILL.md:46" },
     { id: "/investigation-coach:map", lane: "investigation-coach", col: "model", kind: "model", label: "map", role: "maps → artifact-style",
@@ -232,6 +234,7 @@ export const loopmap: LoopMap = {
     { from: "/ai-coach:wrap", to: "/memory-coach:roster", verb: "chains" },
     { from: "/ai-coach:wrap", to: "/memory-coach:debrief", verb: "chains" },
     { from: "/ai-coach:wrap", to: "/memory-coach:handoff", verb: "chains" },
+    { from: "/investigation-coach:investigate", to: "/investigation-coach:onboard", verb: "--tour" },
     { from: "/investigation-coach:onboard", to: "investigation-coach:scout", verb: "spawns" },
     { from: "/investigation-coach:map", to: "investigation-coach:scout", verb: "spawns" },
     { from: "/investigation-coach:study", to: "investigation-coach:scout", verb: "spawns" },

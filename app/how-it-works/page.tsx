@@ -58,7 +58,10 @@ export default async function HowItWorks() {
       <figure className="zoomable how-canvas">
         <figcaption>
           Columns are the loop&apos;s steps; rows are the plugins. A chip&apos;s outline and mark say how it enters, the
-          numbered circles are the special cases, and the panels at the bottom list where it asks and what it writes.
+          numbered circles are the special cases, and the panels at the bottom list where it asks and what it writes.{" "}
+          <label className="lm-pause">
+            <input type="checkbox" /> Pause animation
+          </label>
         </figcaption>
         <div className="zoom-viewport" tabIndex={0} aria-label="Agent loop diagram; pan and zoom">
           <div className="zoom-toolbar" role="group" aria-label="Diagram zoom">
