@@ -188,11 +188,13 @@ export function renderSvg(map: LoopMap, opts: { describedBy?: string } = {}): st
   });
   out.push(t(24, 196 + kinds.length * 30 + 8, "Stroke and mark show how it enters.", 13, "lm-m"));
 
-  // spine
+  // spine. --i is the step's place in the turn: loopmap.css lights each step, and the chips that
+  // act at it, in that order.
+  const at = new Map(map.steps.map((s, i) => [s.col, i]));
   for (const s of L.spine) {
     const x = L.colX[s.step.col] + 8;
     const w = L.colW[s.step.col] - 16;
-    out.push(`<rect class="lm-step" x="${x}" y="${s.top}" width="${w}" height="${s.bottom - s.top}" rx="8"/>`);
+    out.push(`<rect class="lm-step" x="${x}" y="${s.top}" width="${w}" height="${s.bottom - s.top}" rx="8" style="--i:${at.get(s.step.col)}"/>`);
     s.title.forEach((line, i) => out.push(t(x + 12, s.top + 30 + i * 24, line, 18, "lm-t", ' font-weight="700"')));
     const subTop = s.top + 30 + s.title.length * 24 + 6;
     s.sub.forEach((line, i) => out.push(t(x + 12, subTop + i * 18, line, 13, "lm-m")));
@@ -265,7 +267,7 @@ export function renderSvg(map: LoopMap, opts: { describedBy?: string } = {}): st
   for (const p of L.placed.values()) {
     const { item, x, y } = p;
     const cls = `lm-chip lm-k-${item.kind}${item.fail ? " lm-fail" : ""}`;
-    out.push(`<g class="lm-item"><rect class="${cls}" x="${x}" y="${y}" width="${CHIP_W}" height="${CHIP_H}" rx="6"/>`);
+    out.push(`<g class="lm-item"><rect class="${cls}" x="${x}" y="${y}" width="${CHIP_W}" height="${CHIP_H}" rx="6" style="--i:${at.get(item.col)}"/>`);
     out.push(glyph(item.kind, x + 15, y + 17));
     out.push(t(x + 28, y + 22, must(item.label, 14, CHIP_W - 22), 14, "lm-t", ' font-weight="600"'));
     out.push(t(x + 28, y + 41, must(item.role, 12, CHIP_W - 22), 12, "lm-m"));
@@ -310,7 +312,7 @@ export function renderSvg(map: LoopMap, opts: { describedBy?: string } = {}): st
   const height = L.panelsY + maxPanel + 24;
   const defs = `<defs><marker id="lm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="lm-head" d="M0 0L10 5L0 10z"/></marker></defs>`;
   const described = opts.describedBy ? ` aria-describedby="${opts.describedBy}"` : "";
-  return `<svg class="lm" viewBox="0 0 ${width} ${height}" width="${width}" role="img" aria-label="${esc(map.title)}: Claude Code's agent loop, with every AI Coach plugin at the step where it acts"${described}>${defs}${out.join("")}</svg>`;
+  return `<svg class="lm" viewBox="0 0 ${width} ${height}" width="${width}" style="--n:${map.steps.length}" role="img" aria-label="${esc(map.title)}: Claude Code's agent loop, with every AI Coach plugin at the step where it acts"${described}>${defs}${out.join("")}</svg>`;
 }
 
 // ── the brief: the home page's version of the same map ─────────────────────────────────────────
@@ -345,7 +347,7 @@ export function renderBriefSvg(map: LoopMap, opts: { describedBy?: string } = {}
   const spineTop = 48, spineH = 50;
   BRIEF_COLS.forEach((c, i) => {
     const x = HEAD + i * COL + 4;
-    out.push(`<rect class="lm-step" x="${x}" y="${spineTop}" width="${CW + 2}" height="${spineH}" rx="6"/>`);
+    out.push(`<rect class="lm-step" x="${x}" y="${spineTop}" width="${CW + 2}" height="${spineH}" rx="6" style="--i:${i}"/>`);
     wrap(c.title, 14, CW).forEach((line, j, all) =>
       out.push(t(x + 10, spineTop + (all.length > 1 ? 21 : 30) + j * 18, line, 14, "lm-t", ' font-weight="700"')));
     if (i < BRIEF_COLS.length - 1) {
@@ -375,14 +377,14 @@ export function renderBriefSvg(map: LoopMap, opts: { describedBy?: string } = {}
     // prompt) flows rightward from that step instead of stacking a tall column beside empty ones;
     // its header says where they all enter. A row spread across steps keeps one column per step.
     type Chip = (typeof cells)[number][number];
-    const placed: { c: Chip; x: number; dy: number }[] = [];
+    const placed: { c: Chip; x: number; dy: number; i: number }[] = [];
     const used = cells.flatMap((cs, i) => (cs.length ? [i] : []));
     let contentH = 0;
     if (used.length === 1) {
       const s = used[0], perLine = BRIEF_COLS.length - s, chips = cells[s];
       for (let k = 0, dy = 0; k < chips.length; k += perLine) {
         const line = chips.slice(k, k + perLine);
-        line.forEach((c, j) => placed.push({ c, x: HEAD + (s + j) * COL + 5, dy }));
+        line.forEach((c, j) => placed.push({ c, x: HEAD + (s + j) * COL + 5, dy, i: s }));
         dy += Math.max(...line.map((c) => chipH(c.names.length))) + 6;
         contentH = dy - 6;
       }
@@ -390,7 +392,7 @@ export function renderBriefSvg(map: LoopMap, opts: { describedBy?: string } = {}
       cells.forEach((cs, i) => {
         let dy = 0;
         for (const c of cs) {
-          placed.push({ c, x: HEAD + i * COL + 5, dy });
+          placed.push({ c, x: HEAD + i * COL + 5, dy, i });
           dy += chipH(c.names.length) + 6;
         }
         contentH = Math.max(contentH, dy - 6);
@@ -409,9 +411,9 @@ export function renderBriefSvg(map: LoopMap, opts: { describedBy?: string } = {}
       const gx = HEAD + used[0] * COL + 1;
       out.push(`<rect class="lm-group" x="${gx}" y="${y + PAD - 5}" width="${W - gx - 3}" height="${contentH + 10}" rx="8"/>`);
     }
-    for (const { c, x, dy } of placed) {
+    for (const { c, x, dy, i } of placed) {
       const cy = y + PAD + dy;
-      out.push(`<rect class="lm-chip lm-k-${c.kind}" x="${x}" y="${cy}" width="${CW}" height="${chipH(c.names.length)}" rx="5"/>`);
+      out.push(`<rect class="lm-chip lm-k-${c.kind}" x="${x}" y="${cy}" width="${CW}" height="${chipH(c.names.length)}" rx="5" style="--i:${i}"/>`);
       out.push(t(x + 8, cy + 17, c.head, 12, "lm-t", ' font-weight="700"'));
       c.names.forEach((n, j) => out.push(t(x + 8, cy + 17 + (j + 1) * LINE, n, 12, "lm-m")));
     }
@@ -419,7 +421,7 @@ export function renderBriefSvg(map: LoopMap, opts: { describedBy?: string } = {}
   });
   const defs = `<defs><marker id="lm-ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="lm-head" d="M0 0L10 5L0 10z"/></marker></defs>`;
   const described = opts.describedBy ? ` aria-describedby="${opts.describedBy}"` : "";
-  return `<svg class="lm lm-brief" viewBox="0 0 ${W} ${y + 4}" role="img" aria-label="${esc(map.title)}, in brief: which coaches act at each step of Claude Code's agent loop, and how each one enters it"${described}>${defs}${out.join("")}</svg>`;
+  return `<svg class="lm lm-brief" viewBox="0 0 ${W} ${y + 4}" style="--n:${BRIEF_COLS.length}" role="img" aria-label="${esc(map.title)}, in brief: which coaches act at each step of Claude Code's agent loop, and how each one enters it"${described}>${defs}${out.join("")}</svg>`;
 }
 
 // ── the text twin: the same map for screen readers, crawlers and phones ───────────────────────

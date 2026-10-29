@@ -30,3 +30,16 @@
 .lm-call { fill: var(--text); }
 .lm .lm-call-n { fill: var(--surface); }
 .lm-group { fill: none; stroke: var(--muted); stroke-width: 1.2; stroke-dasharray: 6 4; }
+
+/* Motion: the arrows march the way the turn flows, and a glow walks the steps in order, lighting
+   each step with the chips that act at it (--i from lib/loopmap.ts, --n on the svg). The glow is a
+   filter, so strokes and fills keep their measured contrast. Off for reduced motion. */
+@media (prefers-reduced-motion: no-preference) {
+  .lm-flow, .lm-arc { stroke-dasharray: 8 6; animation: lm-march .9s linear infinite; }
+  .lm-step, .lm-chip { animation: lm-on calc(var(--n) * 1s) calc(var(--i) * 1s) infinite; }
+}
+@keyframes lm-march { to { stroke-dashoffset: -14; } }
+@keyframes lm-on {
+  0%, 9% { filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 2px var(--accent)); }
+  18%, 100% { filter: drop-shadow(0 0 0 transparent) drop-shadow(0 0 0 transparent); }
+}
